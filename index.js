@@ -31,7 +31,7 @@ app.get('/api/header/games', async (req, res) => {
     res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000")
     const sortedGames = games.sort((a, b) => new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime())
     let finalGames = [];
-    for(let i = 0; i <= 5; i++) {
+    for(let i = 0; i < 5; i++) {
         const game = sortedGames[i]
         const data = {
             name: game.name,
@@ -40,9 +40,9 @@ app.get('/api/header/games', async (req, res) => {
         };
         finalGames.push(game);
     }
-    setTimeout(() => {
-        return res.send({success: true, games: finalGames}).status(200)
-    }, 5000)
+    // setTimeout(() => {
+    return res.send({success: true, games: finalGames}).status(200)
+    // }, 5000)
 })
 
 app.get('/api/games/:gameId', async (req, res) => {
