@@ -38,7 +38,7 @@ app.get('/api/header/games', async (req, res) => {
             id: game.id,
             releaseDate: game.releaseDate
         };
-        finalGames.push(game);
+        finalGames.push(data);
     }
     // setTimeout(() => {
     return res.send({success: true, games: finalGames}).status(200)
