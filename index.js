@@ -11,7 +11,10 @@ const bodyParser = require('body-parser');
 app.use(cors())
 app.use(bodyParser.json())
 app.use(morgan("dev"))
-app.use((req, res) => res.setHeader("Access-Control-Allow-Origin", `${config.domain}:${config.clientPort}`))
+app.use((req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", `${config.domain}:${config.clientPort}`);
+    next()
+})
 
 const adminDb = mongoose.model("Admin", adminSchema)
 const gameDb = mongoose.model("Game", gameSchema)
