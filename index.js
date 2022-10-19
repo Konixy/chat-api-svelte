@@ -4,6 +4,9 @@ const config = require('./config.js');
 const colors = require('colors');
 const adminSchema = require('./adminSchema.js');
 const gameSchema = require('./gameSchema.js');
+const morgan = require('morgan')
+
+app.use(morgan("dev"))
 
 const adminDb = mongoose.model("Admin", adminSchema)
 const gameDb = mongoose.model("Game", gameSchema)
@@ -35,7 +38,7 @@ app.get('/api/header/games', async (req, res) => {
         const game = sortedGames[i]
         const data = {
             name: game.name,
-            id: game.id,
+            _id: game.id,
             releaseDate: game.releaseDate
         };
         finalGames.push(data);
