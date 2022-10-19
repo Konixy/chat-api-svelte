@@ -5,8 +5,13 @@ const colors = require('colors');
 const adminSchema = require('./adminSchema.js');
 const gameSchema = require('./gameSchema.js');
 const morgan = require('morgan')
+const cors = require('cors');
+const bodyParser = require('body-parser');
 
+app.use(cors())
+app.use(bodyParser.json())
 app.use(morgan("dev"))
+app.use((req, res) => res.setHeader("Access-Control-Allow-Origin", `${config.domain}:${config.clientPort}`))
 
 const adminDb = mongoose.model("Admin", adminSchema)
 const gameDb = mongoose.model("Game", gameSchema)
@@ -25,13 +30,11 @@ async function fetchGame(id) {
 
 app.get('/api/games', async (req, res) => {
     const games = await fetchGames()
-    res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000")
     return res.send({success: true, games}).status(200)
 })
 
 app.get('/api/header/games', async (req, res) => {
     const games = await fetchGames()
-    res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000")
     const sortedGames = games.sort((a, b) => new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime())
     let finalGames = [];
     for(let i = 0; i < 5; i++) {
@@ -50,7 +53,6 @@ app.get('/api/header/games', async (req, res) => {
 
 app.get('/api/games/:gameId', async (req, res) => {
     const game = await fetchGame(req.params.gameId)
-    res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000")
     return res.send({success: true, game}).status(200)
 })
 
