@@ -12,7 +12,7 @@ app.use(cors())
 app.use(bodyParser.json())
 app.use(morgan("dev"))
 app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", `${config.clientDomain}:${config.clientPort}`);
+    res.setHeader("Access-Control-Allow-Origin", `${config.clientDomain}${config.clientPort === 80 ? "" : `:${config.clientPort}`}`);
     next()
 })
 
