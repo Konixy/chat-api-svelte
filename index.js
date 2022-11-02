@@ -12,7 +12,7 @@ app.use(cors())
 app.use(bodyParser.json())
 app.use(morgan("dev"))
 app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", `${config.domain}:${config.clientPort}`);
+    res.setHeader("Access-Control-Allow-Origin", `${config.clientDomain}:${config.clientPort}`);
     next()
 })
 
@@ -33,7 +33,9 @@ async function fetchGame(id) {
 
 app.get('/api/games', async (req, res) => {
     const games = await fetchGames()
-    return res.send({success: true, games}).status(200)
+    // setTimeout(() => {
+        return res.send({success: true, games}).status(200)
+    // }, 5000);
 })
 
 app.get('/api/header/games', async (req, res) => {
