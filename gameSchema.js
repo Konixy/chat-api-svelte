@@ -17,12 +17,20 @@ module.exports = new Schema({
       type: String,
       required: false
     },
-    releaseDate: {
+    release: {
       type: String,
+      required: false
+    },
+    releaseDate: {
+      type: Date,
       required: false
     },
     lastUpdate: {
       type: String,
+      required: false
+    },
+    lastUpdateDate: {
+      type: Date,
       required: false
     },
     bgUrl: {
