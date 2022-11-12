@@ -23,7 +23,9 @@ async function fetchGame(id) {
 app.get('/api/games', async (req, res) => {
     const games = await fetchGames()
     res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000")
-    return res.send({success: true, games}).status(200)
+    // setTimeout(() => {
+        return res.send({success: true, games}).status(200)
+    // }, 5000);
 })
 
 app.get('/api/header/games', async (req, res) => {
@@ -42,7 +44,8 @@ app.get('/api/header/games', async (req, res) => {
     }
     // setTimeout(() => {
     return res.send({success: true, games: finalGames}).status(200)
-    // }, 5000)
+    // return res.status(404).send({code: 404})
+    // }, 2000)
 })
 
 app.get('/api/games/:gameId', async (req, res) => {
