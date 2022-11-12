@@ -1,6 +1,6 @@
-const {Schema} = require('mongoose');
+import { Schema } from 'mongoose';
 
-module.exports = new Schema({
+export default new Schema({
     _id: {
       type: String,
       required: true
@@ -17,12 +17,20 @@ module.exports = new Schema({
       type: String,
       required: false
     },
-    releaseDate: {
+    release: {
       type: String,
+      required: false
+    },
+    releaseDate: {
+      type: Date,
       required: false
     },
     lastUpdate: {
       type: String,
+      required: false
+    },
+    lastUpdateDate: {
+      type: Date,
       required: false
     },
     bgUrl: {

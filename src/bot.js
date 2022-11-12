@@ -8,11 +8,11 @@ const client = new Discord.Client({
 const mongoose = require('mongoose')
 const config = require('./config.js')
 const colors = require('colors')
-const schema = require('./adminSchema.js')
+const schema = require('./adminSchema')
 const embedColor = '#2f3136'
 const passwordGenerator = require('generate-password')
 
-const database = mongoose.model("Admin", schema)
+const database = require('./database')
 
 function sendEmbed(message, embedTitle, embedDescription, embedColorParam) {
     if(!message || !embedTitle && !embedDescription) return console.log('[sendEmbed function ERROR] invalid arguments')
