@@ -2,7 +2,7 @@ import Express from "express";
 import session from "express-session";
 import passport from "passport";
 import mongoose from "mongoose";
-import config from "./config.js";
+import {config} from "./config.js";
 import colors from "colors";
 import adminDb from "./database";
 import gameSchema from "./gameSchema";
