@@ -4,8 +4,8 @@ COPY . .
 
 RUN apk update
 
-RUN npx tsc
+RUN npm run build
 
 EXPOSE 1000
 
-CMD [ "node", "./dist/index.js" ]
+CMD [ "npm", "start" ]
