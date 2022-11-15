@@ -30,46 +30,13 @@ const client = new Client({
   ],
   failIfNotExists: false,
   presence: {
-    activities: [this.status],
-    status: "online",
-  },
-  allowedMentions: {
-    parse: ["roles", "users", "everyone"],
-    repliedUser: false,
-  },
-});
-new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildBans,
-    GatewayIntentBits.GuildEmojisAndStickers,
-    GatewayIntentBits.GuildIntegrations,
-    GatewayIntentBits.GuildWebhooks,
-    GatewayIntentBits.GuildInvites,
-    GatewayIntentBits.GuildVoiceStates,
-    GatewayIntentBits.GuildMessageReactions,
-    GatewayIntentBits.GuildMessageTyping,
-    GatewayIntentBits.DirectMessages,
-    GatewayIntentBits.DirectMessageReactions,
-    GatewayIntentBits.DirectMessageTyping,
-    GatewayIntentBits.GuildScheduledEvents,
-    GatewayIntentBits.GuildPresences,
-    GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-  ],
-  partials: [
-    Partials.Channel,
-    Partials.GuildMember,
-    Partials.GuildScheduledEvent,
-    Partials.Message,
-    Partials.Reaction,
-    Partials.ThreadMember,
-    Partials.User,
-  ],
-  failIfNotExists: false,
-  presence: {
-    activities: [this.status],
+    activities: [
+      {
+        name: `Bot officiel de All-Cracks.fr`,
+        type: ActivityType.Streaming,
+        url: "https://www.twitch.tv/zentax76",
+      }
+    ],
     status: "online",
   },
   allowedMentions: {
