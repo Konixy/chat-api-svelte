@@ -1,4 +1,4 @@
-import Discord, { Client, GatewayIntentBits, Partials } from "discord.js";
+import Discord, { Client, GatewayIntentBits, Partials, ActivityType } from "discord.js";
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
