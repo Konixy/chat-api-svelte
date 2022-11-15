@@ -21,8 +21,8 @@ import fs from "fs";
 
 const app = Express();
 
-var privateKey = fs.readFileSync("../letsencrypt/privatekey.pem");
-var certificate = fs.readFileSync("../letsencrypt/certificate.pem");
+var privateKey = fs.readFileSync("./letsencrypt/privatekey.pem");
+var certificate = fs.readFileSync("./letsencrypt/certificate.pem");
 
 let server;
 
