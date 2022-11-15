@@ -141,6 +141,27 @@ app.get("/api/header/games", async (req, res) => {
   // }, 5000)
 });
 
+app.get("/api/home/games", async (req, res) => {
+  const games = await fetchGames();
+  const sortedGames = games.sort(
+    (a, b) =>
+      new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime()
+  );
+  let finalGames = [];
+  for (let i = 0; i < 2; i++) {
+    const game = sortedGames[i];
+    const data = {
+      name: game.name,
+      _id: game._id,
+      coverUrl: game.coverUrl,
+    };
+    finalGames.push(data);
+  }
+  // setTimeout(() => {
+  return res.send({ success: true, games: finalGames }).status(200);
+  // }, 5000)
+});
+
 app.get("/api/games/:gameId", async (req, res) => {
   const game = await fetchGame(req.params.gameId);
   return res.send({ success: true, game }).status(200);
