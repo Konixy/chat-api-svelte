@@ -2,7 +2,7 @@ import Express from "express";
 import session from "express-session";
 import passport from "passport";
 import mongoose from "mongoose";
-import {config} from "./config.js";
+import { config } from "./config.js";
 import colors from "colors";
 import adminDb from "./database";
 import gameSchema from "./gameSchema";
@@ -16,8 +16,27 @@ import cookieParser from "cookie-parser";
 import { Strategy as LocalStrategy } from "passport-local";
 import { APIGame, APIAdmin } from "./Types.js";
 import MongoStore from "connect-mongo";
+import https from "https";
+import fs from "fs";
 
 const app = Express();
+
+var privateKey = fs.readFileSync("../letsencrypt/privatekey.pem");
+var certificate = fs.readFileSync("../letsencrypt/certificate.pem");
+
+let server;
+
+if(config.local) {
+  server = app
+} else {
+  server = https.createServer(
+    {
+      key: privateKey,
+      cert: certificate,
+    },
+    app
+  );
+}
 
 const client = algoliasearch("UYH8GWCR8R", config.algoliaKey);
 const index = client.initIndex("Games");
@@ -58,10 +77,13 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 passport.use(
-  new LocalStrategy({
-    usernameField: "email",
-    passwordField: "password",
-  }, adminDb.authenticate())
+  new LocalStrategy(
+    {
+      usernameField: "email",
+      passwordField: "password",
+    },
+    adminDb.authenticate()
+  )
 );
 passport.serializeUser(adminDb.serializeUser());
 passport.deserializeUser(adminDb.deserializeUser());
@@ -248,7 +270,7 @@ app.get("/api/admin/gameselector", checkAuth, async (req, res) => {
   return res.send({ success: true, games: finalGames }).status(200);
 });
 
-app.listen(config.port, null, async () => {
+server.listen(config.port, null, async () => {
   console.log(
     colors.green(
       `✅ App started on port ${config.port} (${domain}${
