@@ -135,6 +135,11 @@ async function fetchGame(id: string) {
   return game;
 }
 
+app.get('/', (req, res) => {
+  res.writeHead(200)
+  res.end("App running !")
+})
+
 app.get("/api/games", async (req, res) => {
   const games = await fetchGames();
   //     setTimeout(() => {
