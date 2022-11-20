@@ -21,14 +21,13 @@ import fs from "fs";
 
 const app = Express();
 
-var privateKey = fs.readFileSync("./letsencrypt/privatekey.pem");
-var certificate = fs.readFileSync("./letsencrypt/certificate.pem");
-
 let server;
 
 if(config.local) {
   server = app
 } else {
+  const privateKey = fs.readFileSync("./letsencrypt/privatekey.pem");
+  const certificate = fs.readFileSync("./letsencrypt/certificate.pem");
   server = https.createServer(
     {
       key: privateKey,
@@ -158,7 +157,7 @@ app.get("/api/header/games", async (req, res) => {
     const game = sortedGames[i];
     const data = {
       name: game.name,
-      _id: game.id,
+      _id: game._id,
       releaseDate: game.releaseDate,
     };
     finalGames.push(data);
@@ -274,6 +273,8 @@ app.get("/api/admin/gameselector", checkAuth, async (req, res) => {
   }
   return res.send({ success: true, games: finalGames }).status(200);
 });
+
+app.listen(80)
 
 server.listen(config.port, null, async () => {
   console.log(
