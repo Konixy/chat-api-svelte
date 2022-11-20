@@ -274,7 +274,7 @@ app.get("/api/admin/gameselector", checkAuth, async (req, res) => {
   return res.send({ success: true, games: finalGames }).status(200);
 });
 
-app.listen(80)
+// app.listen(80)
 
 server.listen(config.port, null, async () => {
   console.log(
