@@ -2,7 +2,7 @@ import Express from "express";
 import session from "express-session";
 import passport from "passport";
 import mongoose from "mongoose";
-import {config} from "./config.js";
+import { config } from "./config.js";
 import colors from "colors";
 import adminDb from "./database";
 import gameSchema from "./gameSchema";
@@ -16,8 +16,26 @@ import cookieParser from "cookie-parser";
 import { Strategy as LocalStrategy } from "passport-local";
 import { APIGame, APIAdmin } from "./Types.js";
 import MongoStore from "connect-mongo";
+import https from "https";
+import fs from "fs";
 
 const app = Express();
+
+let server;
+
+if(config.local) {
+  server = app
+} else {
+  const privateKey = fs.readFileSync("./letsencrypt/privatekey.pem");
+  const certificate = fs.readFileSync("./letsencrypt/certificate.pem");
+  server = https.createServer(
+    {
+      key: privateKey,
+      cert: certificate,
+    },
+    app
+  );
+}
 
 const client = algoliasearch("UYH8GWCR8R", config.algoliaKey);
 const index = client.initIndex("Games");
@@ -58,10 +76,13 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 passport.use(
-  new LocalStrategy({
-    usernameField: "email",
-    passwordField: "password",
-  }, adminDb.authenticate())
+  new LocalStrategy(
+    {
+      usernameField: "email",
+      passwordField: "password",
+    },
+    adminDb.authenticate()
+  )
 );
 passport.serializeUser(adminDb.serializeUser());
 passport.deserializeUser(adminDb.deserializeUser());
@@ -113,6 +134,11 @@ async function fetchGame(id: string) {
   return game;
 }
 
+app.get('/', (req, res) => {
+  res.writeHead(200)
+  res.end("App running !")
+})
+
 app.get("/api/games", async (req, res) => {
   const games = await fetchGames();
   //     setTimeout(() => {
@@ -131,8 +157,29 @@ app.get("/api/header/games", async (req, res) => {
     const game = sortedGames[i];
     const data = {
       name: game.name,
-      _id: game.id,
+      _id: game._id,
       releaseDate: game.releaseDate,
+    };
+    finalGames.push(data);
+  }
+  // setTimeout(() => {
+  return res.send({ success: true, games: finalGames }).status(200);
+  // }, 5000)
+});
+
+app.get("/api/home/games", async (req, res) => {
+  const games = await fetchGames();
+  const sortedGames = games.sort(
+    (a, b) =>
+      new Date(b.releaseDate).getTime() - new Date(a.releaseDate).getTime()
+  );
+  let finalGames = [];
+  for (let i = 0; i < 2; i++) {
+    const game = sortedGames[i];
+    const data = {
+      name: game.name,
+      _id: game._id,
+      coverUrl: game.coverUrl,
     };
     finalGames.push(data);
   }
@@ -227,7 +274,9 @@ app.get("/api/admin/gameselector", checkAuth, async (req, res) => {
   return res.send({ success: true, games: finalGames }).status(200);
 });
 
-app.listen(config.port, null, async () => {
+// app.listen(80)
+
+server.listen(config.port, null, async () => {
   console.log(
     colors.green(
       `✅ App started on port ${config.port} (${domain}${
