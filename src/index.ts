@@ -21,22 +21,6 @@ import fs from "fs";
 
 const app = Express();
 
-let server;
-
-if(config.local) {
-  server = app
-} else {
-  const privateKey = fs.readFileSync("./letsencrypt/privatekey.pem");
-  const certificate = fs.readFileSync("./letsencrypt/certificate.pem");
-  server = https.createServer(
-    {
-      key: privateKey,
-      cert: certificate,
-    },
-    app
-  );
-}
-
 const client = algoliasearch("UYH8GWCR8R", config.algoliaKey);
 const index = client.initIndex("Games");
 
@@ -276,7 +260,7 @@ app.get("/api/admin/gameselector", checkAuth, async (req, res) => {
 
 // app.listen(80)
 
-server.listen(config.port, null, async () => {
+app.listen(config.port, null, async () => {
   console.log(
     colors.green(
       `✅ App started on port ${config.port} (${domain}${
