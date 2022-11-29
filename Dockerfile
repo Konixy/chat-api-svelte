@@ -1,8 +1,8 @@
 FROM node:19-alpine as builder
 
-COPY . .
-
 WORKDIR /app
+
+COPY . .
 
 RUN apk update
 
