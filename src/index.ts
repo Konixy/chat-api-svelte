@@ -11,6 +11,10 @@ import passport from "passport";
 import CreateMemoryStore from "memorystore";
 import mongoose from "mongoose";
 import colors from "colors";
+import gameSchema from "./game.schema";
+import { APIGame } from "./Types"
+
+const gameDb = mongoose.model<APIGame>("Game", gameSchema);
 
 declare module 'express-session' {
   interface SessionData {
@@ -62,6 +66,22 @@ app.use((req, res, next) => {
   next();
 })
 
+function checkAuth(
+  req: Express.Request,
+  res: Express.Response,
+  next: Express.NextFunction
+) {
+  console.log(req.user);
+  if (req.user) return next();
+  else {
+    return res.send({ success: false, message: "user not logged in" });
+  }
+}
+
+async function fetchGames() {
+  return await gameDb.find({}).clone().exec();
+}
+
 app.post('/api/auth', (req: Request<any, any, {email: string, password: string}>, res: Response) => {
   console.log(req.body)
   const email = req.body.email;
@@ -84,6 +104,25 @@ app.get('/api/user', (req: Request, res: Response) => {
   if(req.user) res.send({success: true, user: {email: req.user.email}})
   else res.send({success: false, message: "User not logged in"})
 })
+
+app.get("/api/admin/gameselector", checkAuth, async (req, res) => {
+  const games = await fetchGames();
+  const sortedGames = games.sort(
+    (a, b) =>
+      new Date(b.lastUpdateDate).getTime() -
+      new Date(a.lastUpdateDate).getTime()
+  );
+  let finalGames = [];
+  for (const game of sortedGames) {
+    const data = {
+      name: game.name,
+      _id: game.id,
+      releaseDate: game.releaseDate,
+    };
+    finalGames.push(data);
+  }
+  return res.send({ success: true, games: finalGames }).status(200);
+});
 
 app.listen(config.port, async () => {
   console.log(
