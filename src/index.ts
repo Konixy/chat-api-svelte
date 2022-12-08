@@ -12,7 +12,10 @@ import CreateMemoryStore from "memorystore";
 import mongoose from "mongoose";
 import colors from "colors";
 import gameSchema from "./game.schema";
-import { APIGame } from "./Types"
+import { APIAdmin, APIGame } from "./Types"
+import { Strategy } from "passport-local";
+
+mongoose.set('strictQuery', true);
 
 const gameDb = mongoose.model<APIGame>("Game", gameSchema);
 
@@ -35,6 +38,16 @@ const app = Express();
 
 const domain = config.local ? config.localDomain : config.domain;
 
+passport.use(new Strategy(
+  function(email, password, done) {
+    // console.log(email, password)
+    database.findOne({ email, password }, function (err: any, user: APIAdmin) {
+      if (err) { return done(err); }
+      if (!user) { return done(null, null); }
+      return done(null, user);
+    });
+  }
+));
 
 app.use(cookieParser());
 app.use(cors())
@@ -82,21 +95,12 @@ async function fetchGames() {
   return await gameDb.find({}).clone().exec();
 }
 
-app.post('/api/auth', (req: Request<any, any, {email: string, password: string}>, res: Response) => {
-  console.log(req.body)
-  const email = req.body.email;
-  const password = req.body.password;
+app.post('/api/auth', passport.authenticate('local', {failureRedirect: "/api/auth/failure"}), (req, res) => {
+  return res.status(200).send(JSON.stringify({success: true, message:"Connexion réussie !", user: req.user }))
+})
 
-  database.findOne({email,password}).clone().then(data => {
-    if(data) {
-      const user = {email: data.email}
-      req.logIn(user, () => {
-        return res.status(200).send(JSON.stringify({success: true, message:"Connexion réussie !", user }))
-      });
-    } else {
-      return res.status(200).send(JSON.stringify({success: false, message:"L'adresse email ou le mot de passe est invalide"}))
-    }
-  }).catch(err => console.log(err))
+app.get('/api/auth/failure', (req, res) => {
+  return res.status(200).send(JSON.stringify({success: false, message:"L'adresse email ou le mot de passe est invalide"}))
 })
 
 app.get('/api/user', (req: Request, res: Response) => {
