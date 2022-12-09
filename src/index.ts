@@ -130,8 +130,13 @@ app.get("/api/auth/failure", (req, res) => {
   });
 });
 
+app.post("/api/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.status(200).send({ success: true });
+  });
+});
+
 app.get("/api/user", (req: Request, res: Response) => {
-  console.log(req.user);
   if (req.user) res.send({ success: true, user: { email: req.user.email } });
   else res.send({ success: false, message: "User not logged in" });
 });
