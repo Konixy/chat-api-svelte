@@ -63,7 +63,14 @@ passport.use(
 );
 
 app.use(cookieParser());
-app.use(cors());
+app.use(
+  cors({
+    credentials: true,
+    origin: `${config.clientDomain}${
+      config.clientPort === 80 ? "" : `:${config.clientPort}`
+    }`,
+  })
+);
 app.use(bodyParser.json());
 app.use(morgan("dev"));
 
@@ -80,31 +87,19 @@ app.use(
     resave: false,
     saveUninitialized: true,
     cookie: { maxAge: 604800000 },
+    store: new MemoryStore({
+      checkPeriod: 86400000,
+    }),
   })
 );
 
 app.use(flash());
+app.use(passport.initialize());
+app.use(passport.session());
 
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  res.setHeader(
-    "Access-Control-Allow-Origin",
-    `${config.clientDomain}${
-      config.clientPort === 80 ? "" : `:${config.clientPort}`
-    }`
-  );
-  next();
-});
-
-function checkAuth(
-  req: Express.Request,
-  res: Express.Response,
-  next: Express.NextFunction
-) {
+function checkAuth(req: Request, res: Response, next: NextFunction) {
   if (req.user) return next();
-  else {
-    return res.send({ success: false, message: "user not logged in" });
-  }
+  else return res.send({ success: false, message: "user not logged in" });
 }
 
 async function fetchGames() {
@@ -148,16 +143,7 @@ app.get("/api/gameselector", checkAuth, async (req, res) => {
       new Date(b.lastUpdateDate).getTime() -
       new Date(a.lastUpdateDate).getTime()
   );
-  let finalGames = [];
-  for (const game of sortedGames) {
-    const data = {
-      name: game.name,
-      _id: game.id,
-      releaseDate: game.releaseDate,
-    };
-    finalGames.push(data);
-  }
-  return res.send({ success: true, games: finalGames }).status(200);
+  return res.send({ success: true, games: sortedGames }).status(200);
 });
 
 app.listen(config.port, async () => {
