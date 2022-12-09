@@ -39,21 +39,27 @@ const app = Express();
 const domain = config.local ? config.localDomain : config.domain;
 
 passport.use(
-  new Strategy({
-    usernameField: "email",
-    passwordField: "password"
-  }, function (email, password, done) {
-    // console.log(email, password)
-    database.findOne({ email, password }, function (err: any, user: APIAdmin) {
-      if (err) {
-        return done(err);
-      }
-      if (!user) {
-        return done(null, null);
-      }
-      return done(null, user);
-    });
-  })
+  new Strategy(
+    {
+      usernameField: "email",
+      passwordField: "password",
+    },
+    function (email, password, done) {
+      // console.log(email, password)
+      database.findOne(
+        { email, password },
+        function (err: any, user: APIAdmin) {
+          if (err) {
+            return done(err);
+          }
+          if (!user) {
+            return done(null, null);
+          }
+          return done(null, user);
+        }
+      );
+    }
+  )
 );
 
 app.use(cookieParser());
@@ -107,32 +113,21 @@ async function fetchGames() {
 
 app.post(
   "/api/auth",
-  passport.authenticate(
-    "local",
-    { failureRedirect: "/api/auth/failure" }
-  ),
+  passport.authenticate("local", { failureRedirect: "/api/auth/failure" }),
   (req, res) => {
-    return res
-      .status(200)
-      .send(
-        JSON.stringify({
-          success: true,
-          message: "Connexion réussie !",
-          user: {email: req.user.email},
-        })
-      );
+    return res.status(200).send({
+      success: true,
+      message: "Connexion réussie !",
+      user: { email: req.user.email },
+    });
   }
 );
 
 app.get("/api/auth/failure", (req, res) => {
-  return res
-    .status(200)
-    .send(
-      JSON.stringify({
-        success: false,
-        message: "L'adresse email ou le mot de passe est invalide",
-      })
-    );
+  return res.status(200).send({
+    success: false,
+    message: "L'adresse email ou le mot de passe est invalide",
+  });
 });
 
 app.get("/api/user", (req: Request, res: Response) => {
