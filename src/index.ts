@@ -158,3 +158,7 @@ app.listen(config.port, async () => {
     console.log(colors.green("✅ MongoDB connected"));
   });
 });
+
+process.on("unhandledRejection", (err) => {
+  console.log(err);
+});
