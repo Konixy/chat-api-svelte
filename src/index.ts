@@ -146,6 +146,22 @@ app.get("/api/gameselector", checkAuth, async (req, res) => {
   return res.send({ success: true, games: sortedGames }).status(200);
 });
 
+app.post("/api/save/:gameId", checkAuth, async (req, res) => {
+  const games = await fetchGames();
+  let game = games.filter((e) => e._id === req.params.gameId)[0];
+  if (game) {
+    game = Object.assign(game, req.body);
+    game.save().then(async () => {
+      return res.send({
+        success: true,
+        game,
+        games: await fetchGames(),
+        message: "Jeu sauvegardé !",
+      });
+    });
+  } else res.send({ success: false, message: "Jeu introuvable" });
+});
+
 app.listen(config.port, async () => {
   console.log(
     colors.green(
