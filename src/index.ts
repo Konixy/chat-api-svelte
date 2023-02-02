@@ -162,6 +162,20 @@ app.post("/api/save/:gameId", checkAuth, async (req, res) => {
   } else res.send({ success: false, message: "Jeu introuvable" });
 });
 
+app.post("/api/delete/:gameId", checkAuth, async (req, res) => {
+  const games = await fetchGames();
+  let game = games.filter((e) => e._id === req.params.gameId)[0];
+  if (game) {
+    game.delete();
+
+    return res.send({
+      success: true,
+      games: await fetchGames(),
+      message: "Jeu sauvegardé !",
+    });
+  } else res.send({ success: false, message: "Jeu introuvable" });
+});
+
 app.listen(config.port, async () => {
   console.log(
     colors.green(
