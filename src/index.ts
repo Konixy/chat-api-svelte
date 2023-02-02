@@ -171,7 +171,7 @@ app.post("/api/delete/:gameId", checkAuth, async (req, res) => {
     return res.send({
       success: true,
       games: await fetchGames(),
-      message: "Jeu sauvegardé !",
+      message: "Jeu suprimé !",
     });
   } else res.send({ success: false, message: "Jeu introuvable" });
 });
