@@ -6,7 +6,7 @@
   "scripts": {
     "test": "nodemon ./src/index.ts",
     "start": "ts-node ./src/index.ts",
-    "sync": "git commit -a -m \"Update\" && git push"
+    "sync": "git add -A && git commit -m \"Update\" && git push"
   },
   "keywords": [],
   "author": "",
