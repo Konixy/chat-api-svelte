@@ -1,8 +1,8 @@
 {
-  "name": "all-cracks-panel-backend",
+  "name": "lyna-api",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.ts",
+  "description": "The api for Lyna.",
+  "main": "src/index.ts",
   "scripts": {
     "test": "nodemon ./src/index.ts",
     "start": "ts-node ./src/index.ts",

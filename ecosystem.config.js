@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: "all-cracks-panel-backend",
+      name: "lyna-api",
       script: "npx tsc && node ./dist/index.js",
     },
   ],
