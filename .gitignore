@@ -2,3 +2,5 @@
 /dist
 package-lock.json
 src/config.ts
+.env
+.env.local
