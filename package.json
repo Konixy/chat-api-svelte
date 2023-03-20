@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "nodemon src/index.ts",
-    "build": "tsc && node dist/index.js"
+    "restart": "tsc && pm2 restart lyna-api --update-env"
   },
   "repository": {
     "type": "git",

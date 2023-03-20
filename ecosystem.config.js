@@ -2,7 +2,7 @@ module.exports = {
   apps: [
     {
       name: "lyna-api",
-      script: "npm run build",
+      script: "./dist/index.js",
     },
   ],
 };
