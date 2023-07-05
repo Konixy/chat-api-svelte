@@ -13,12 +13,15 @@ import bodyParser from "body-parser";
 import axios from "axios";
 import type { GraphQLContext, Session } from "./lib/types";
 import { PrismaClient } from "@prisma/client";
+import morgan from "morgan";
 
 const app = Express();
 
 const httpServer = http.createServer(app);
 
 config();
+
+app.use(morgan("dev"));
 
 const prisma = new PrismaClient();
 

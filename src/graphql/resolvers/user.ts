@@ -1,8 +1,17 @@
 import type { GraphQLContext, CreateUsernameResponse } from "../../lib/types";
+import { ApolloError } from "apollo-server-core";
 
 const resolvers = {
   Query: {
-    searchUsers: () => {},
+    searchUsers: (
+      _: any,
+      { query }: { query: string },
+      { session, prisma }: GraphQLContext
+    ) => {
+      if (!session.user) {
+        throw new ApolloError("Not authorized.");
+      }
+    },
   },
   Mutation: {
     createUsername: async (
