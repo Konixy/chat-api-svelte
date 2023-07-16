@@ -36,16 +36,19 @@ model Session {
 }
 
 model User {
-  id            String                    @id @default(uuid()) @map("_id")
-  name          String?
-  username      String?                   @unique
-  conversations ConversationParticipant[]
-  email         String?                   @unique
-  emailVerified Boolean?                  @default(false)
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  createdAt     DateTime                  @default(now())
+  id              String                    @id @default(uuid()) @map("_id")
+  name            String?
+  username        String?                   @unique
+  conversations   ConversationParticipant[]
+  messages        Message[]
+  seenMessagesIds String[]
+  seenMessages    Message[]                 @relation(name: "messageSeenBy", fields: [seenMessagesIds], references: [id])
+  email           String?                   @unique
+  emailVerified   Boolean?                  @default(false)
+  image           String?
+  accounts        Account[]
+  sessions        Session[]
+  createdAt       DateTime                  @default(now())
 }
 
 model VerificationToken {
@@ -58,10 +61,13 @@ model VerificationToken {
 }
 
 model Conversation {
-  id           String                    @id @default(uuid()) @map("_id")
-  participants ConversationParticipant[]
-  createdAt    DateTime                  @default(now())
-  updatedAt    DateTime                  @updatedAt
+  id              String                    @id @default(uuid()) @map("_id")
+  participants    ConversationParticipant[]
+  messages        Message[]
+  latestMessageId String?                   @unique
+  latestMessage   Message?                  @relation(name: "latestConversationMessage", fields: [latestMessageId], references: [id], onUpdate: NoAction, onDelete: NoAction)
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
 }
 
 model ConversationParticipant {
@@ -70,4 +76,19 @@ model ConversationParticipant {
   user           User         @relation(fields: [userId], references: [id])
   conversationId String
   conversation   Conversation @relation(fields: [conversationId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Message {
+  id             String        @id @default(uuid()) @map("_id")
+  conversationId String
+  conversation   Conversation  @relation(fields: [conversationId], references: [id])
+  senderId       String
+  sender         User          @relation(fields: [senderId], references: [id])
+  isLatestIn     Conversation? @relation(name: "latestConversationMessage")
+  seenByIds      String[]
+  seenBy         User[]        @relation(name: "messageSeenBy", fields: [seenByIds], references: [id])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 }
