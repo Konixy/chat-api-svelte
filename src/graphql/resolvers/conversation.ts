@@ -1,5 +1,5 @@
 import { ApolloError } from "apollo-server-core";
-import { GraphQLContext } from "../../lib/types";
+import { ConversationPopulated, GraphQLContext } from "../../lib/types";
 import { Prisma } from "@prisma/client";
 
 const resolvers = {
@@ -8,8 +8,34 @@ const resolvers = {
       _: any,
       __: any,
       { session, prisma }: GraphQLContext
-    ) => {
-      console.log("inside conversations query");
+    ): Promise<ConversationPopulated[]> => {
+      if (!session.user) {
+        throw new ApolloError("Not authorized.");
+      }
+
+      const {
+        user: { id: userId },
+      } = session;
+
+      try {
+        const conversations = await prisma.conversation.findMany({
+          where: {
+            participants: {
+              some: {
+                userId: {
+                  equals: userId,
+                },
+              },
+            },
+          },
+          include: conversationPopulated,
+        });
+
+        return conversations;
+      } catch (err) {
+        console.log("conversations ERROR", err);
+        throw new ApolloError(err.message);
+      }
     },
   },
   Mutation: {
@@ -18,8 +44,6 @@ const resolvers = {
       { participantsIds }: { participantsIds: string[] },
       { session, prisma }: GraphQLContext
     ): Promise<{ conversationId: string }> => {
-      console.log(participantsIds);
-
       if (!session.user) {
         throw new ApolloError("Not authorized.");
       }
