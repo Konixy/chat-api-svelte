@@ -6,7 +6,25 @@ const typeDefs = gql`
   }
 
   type CreateConversationResponse {
-    conversationId: String
+    conversationId: ID
+  }
+
+  type Conversation {
+    id: ID
+    latestMessage: Message
+    participants: [Participant]
+    createdAt: DateTime
+    updatedAt: DateTime
+  }
+
+  type Participant {
+    id: ID
+    user: User
+    hasSeenAllMessages: Boolean
+  }
+
+  type Query {
+    conversations: [Conversation]
   }
 `;
 

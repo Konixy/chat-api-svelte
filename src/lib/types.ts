@@ -1,4 +1,8 @@
-import type { PrismaClient } from "@prisma/client";
+import type { Prisma, PrismaClient } from "@prisma/client";
+import {
+  conversationPopulated,
+  participantPopulated,
+} from "../graphql/resolvers/conversation";
 
 export type Session = {
   user?: {
@@ -25,3 +29,14 @@ export type CreateUsernameResponse = {
   success?: boolean;
   error?: string;
 };
+
+/**
+ * Conversations
+ */
+export type ConversationPopulated = Prisma.ConversationGetPayload<{
+  include: typeof conversationPopulated;
+}>;
+
+export type ParticipantPopulated = Prisma.ConversationParticipantGetPayload<{
+  include: typeof participantPopulated;
+}>;

@@ -3,6 +3,15 @@ import { GraphQLContext } from "../../lib/types";
 import { Prisma } from "@prisma/client";
 
 const resolvers = {
+  Query: {
+    conversations: async (
+      _: any,
+      __: any,
+      { session, prisma }: GraphQLContext
+    ) => {
+      console.log("inside conversations query");
+    },
+  },
   Mutation: {
     createConversation: async (
       _: any,
@@ -29,6 +38,7 @@ const resolvers = {
               createMany: {
                 data: participantsIds.map((id) => ({
                   userId: id,
+                  hasSeenAllMessages: id === userId,
                 })),
               },
             },
