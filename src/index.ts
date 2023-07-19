@@ -14,6 +14,8 @@ import axios from "axios";
 import type { GraphQLContext, Session } from "./lib/types";
 import { PrismaClient } from "@prisma/client";
 import morgan from "morgan";
+import { WebSocketServer } from "ws";
+import { useServer } from "graphql-ws/lib/use/ws";
 
 const app = Express();
 
@@ -21,7 +23,10 @@ const httpServer = http.createServer(app);
 
 config();
 
-app.use(morgan("dev"));
+/**
+ * Logging
+ */
+// app.use(morgan("dev"));
 
 const prisma = new PrismaClient();
 
@@ -50,11 +55,27 @@ async function main() {
     resolvers,
   });
 
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: "/graphql",
+  });
+
+  const serverCleanup = useServer({ schema }, wsServer);
+
   const server = new ApolloServer({
     schema,
     plugins: [
       ApolloServerPluginDrainHttpServer({ httpServer }),
       ApolloServerPluginLandingPageDisabled(),
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              await serverCleanup.dispose();
+            },
+          };
+        },
+      },
     ],
   });
 
