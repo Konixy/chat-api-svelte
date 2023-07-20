@@ -11,11 +11,12 @@ import http from "http";
 import cors from "cors";
 import bodyParser from "body-parser";
 import axios from "axios";
-import type { GraphQLContext, Session } from "./lib/types";
+import type { GraphQLContext, Session, SubscriptionContext } from "./lib/types";
 import { PrismaClient } from "@prisma/client";
 import morgan from "morgan";
 import { WebSocketServer } from "ws";
 import { useServer } from "graphql-ws/lib/use/ws";
+import { PubSub } from "graphql-subscriptions";
 
 const app = Express();
 
@@ -29,6 +30,7 @@ config();
 // app.use(morgan("dev"));
 
 const prisma = new PrismaClient();
+const pubsub = new PubSub();
 
 async function context({
   req,
@@ -46,7 +48,7 @@ async function context({
     );
     return data;
   }
-  return { session: await getSession(), prisma };
+  return { session: await getSession(), prisma, pubsub };
 }
 
 async function main() {
@@ -57,10 +59,23 @@ async function main() {
 
   const wsServer = new WebSocketServer({
     server: httpServer,
-    path: "/graphql",
+    path: "/graphql/ws",
   });
 
-  const serverCleanup = useServer({ schema }, wsServer);
+  const serverCleanup = useServer(
+    {
+      schema,
+      context: async (ctx: SubscriptionContext): Promise<GraphQLContext> => {
+        if (ctx.connectionParams && ctx.connectionParams.session) {
+          const { session } = ctx.connectionParams;
+
+          return { session, prisma, pubsub };
+        }
+        return { session: null, prisma, pubsub };
+      },
+    },
+    wsServer
+  );
 
   const server = new ApolloServer({
     schema,

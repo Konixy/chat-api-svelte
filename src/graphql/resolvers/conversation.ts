@@ -42,7 +42,7 @@ const resolvers = {
     createConversation: async (
       _: any,
       { participantsIds }: { participantsIds: string[] },
-      { session, prisma }: GraphQLContext
+      { session, prisma, pubsub }: GraphQLContext
     ): Promise<{ conversationId: string }> => {
       if (!session.user) {
         throw new ApolloError("Not authorized.");
@@ -70,6 +70,10 @@ const resolvers = {
           include: conversationPopulated,
         });
 
+        pubsub.publish("CONVERSATION_CREATED", {
+          conversationCreated: conversation,
+        });
+
         return {
           conversationId: conversation.id,
         };
@@ -79,7 +83,12 @@ const resolvers = {
       }
     },
   },
-  // Subscription: {},
+  Subscription: {
+    conversationCreated: {
+      subscribe: (_: any, __: any, { pubsub }: GraphQLContext) =>
+        pubsub.asyncIterator(["CONVERSATION_CREATED"]),
+    },
+  },
 };
 
 export const participantPopulated =

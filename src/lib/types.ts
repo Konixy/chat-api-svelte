@@ -3,6 +3,8 @@ import {
   conversationPopulated,
   participantPopulated,
 } from "../graphql/resolvers/conversation";
+import { Context } from "graphql-ws/lib/server";
+import { PubSub } from "graphql-subscriptions";
 
 export type Session = {
   user?: {
@@ -19,6 +21,13 @@ export type Session = {
 export type GraphQLContext = {
   session?: Session | null;
   prisma: PrismaClient;
+  pubsub: PubSub;
+};
+
+export type SubscriptionContext = Context & {
+  connectionParams: {
+    session?: Session;
+  };
 };
 
 /**
