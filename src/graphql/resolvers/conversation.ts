@@ -1,6 +1,7 @@
 import { ApolloError } from "apollo-server-core";
 import { ConversationPopulated, GraphQLContext } from "../../lib/types";
 import { Prisma } from "@prisma/client";
+import { withFilter } from "graphql-subscriptions";
 
 const resolvers = {
   Query: {
@@ -85,10 +86,29 @@ const resolvers = {
   },
   Subscription: {
     conversationCreated: {
-      subscribe: (_: any, __: any, { pubsub }: GraphQLContext) =>
-        pubsub.asyncIterator(["CONVERSATION_CREATED"]),
+      // subscribe: (_: any, __: any, { pubsub }: GraphQLContext) =>
+      //   pubsub.asyncIterator(["CONVERSATION_CREATED"]),
+      subscribe: withFilter(
+        (_: any, __: any, { pubsub }: GraphQLContext) =>
+          pubsub.asyncIterator(["CONVERSATION_CREATED"]),
+        (
+          payload: ConversationSubscriptionPayload<"conversationCreated">,
+          _,
+          { session }: GraphQLContext
+        ) => {
+          const {
+            conversationCreated: { participants },
+          } = payload;
+
+          return !!participants.find((p) => p.userId === session.user.id);
+        }
+      ),
     },
   },
+};
+
+export type ConversationSubscriptionPayload<SubscriptionName extends string> = {
+  [Property in SubscriptionName]: ConversationPopulated;
 };
 
 export const participantPopulated =
@@ -97,6 +117,7 @@ export const participantPopulated =
       select: {
         id: true,
         username: true,
+        image: true,
       },
     },
   });
