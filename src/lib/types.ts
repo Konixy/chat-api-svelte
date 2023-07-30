@@ -54,9 +54,19 @@ export type ParticipantPopulated = Prisma.ConversationParticipantGetPayload<{
 /**
  * Messages
  */
-export type Message = Prisma.MessageGetPayload<{
-  include: typeof messagePopulated;
-}>;
+export type Message = {
+  id: string;
+  body: string;
+  conversationId: string;
+  senderId: string;
+  seenByIds: string[];
+  createdAt: Date;
+  updatedAt: Date;
+  sender: {
+    id: string;
+    username: string;
+  };
+};
 
 export type SendMessageArguments = {
   id: string;

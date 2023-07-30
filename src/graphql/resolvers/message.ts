@@ -1,4 +1,4 @@
-import { GraphQLContext, Message, SendMessageArguments } from "@/lib/types";
+import { GraphQLContext, Message, SendMessageArguments } from "../../lib/types";
 import { userIsConversationParticipant } from "../../lib/util";
 import { Prisma } from "@prisma/client";
 import { GraphQLError } from "graphql";
@@ -84,6 +84,15 @@ const resolvers = {
           include: messagePopulated,
         });
 
+        const participant = await prisma.conversationParticipant.findFirst({
+          where: {
+            userId: senderId,
+            conversationId,
+          },
+        });
+
+        if (!participant) throw new GraphQLError("Participant does not exist.");
+
         const conversation = await prisma.conversation.update({
           where: {
             id: conversationId,
@@ -93,7 +102,7 @@ const resolvers = {
             participants: {
               update: {
                 where: {
-                  id: senderId,
+                  id: participant.id,
                 },
                 data: {
                   hasSeenAllMessages: true,
@@ -102,7 +111,7 @@ const resolvers = {
               updateMany: {
                 where: {
                   NOT: {
-                    userId: senderId,
+                    userId,
                   },
                 },
                 data: {
