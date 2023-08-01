@@ -46,6 +46,26 @@ const resolvers = {
           },
         });
 
+        await prisma.conversation.update({
+          where: {
+            id: conversationId,
+          },
+          data: {
+            participants: {
+              update: {
+                where: {
+                  id: conversation.participants.find(
+                    (p) => p.user.id === session.user.id
+                  ).id,
+                },
+                data: {
+                  hasSeenAllMessages: true,
+                },
+              },
+            },
+          },
+        });
+
         return messages;
       } catch (err) {
         console.log("messages ERROR", err);
@@ -120,6 +140,7 @@ const resolvers = {
               },
             },
           },
+          include: conversationPopulated,
         });
 
         pubsub.publish("MESSAGE_SENT", { messageSent: newMessage });
