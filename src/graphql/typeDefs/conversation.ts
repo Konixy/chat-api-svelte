@@ -3,6 +3,7 @@ import gql from "graphql-tag";
 const typeDefs = gql`
   type Mutation {
     createConversation(participantsIds: [String]): CreateConversationResponse
+    markConversationAsRead(conversationId: String!): Boolean
   }
 
   type CreateConversationResponse {

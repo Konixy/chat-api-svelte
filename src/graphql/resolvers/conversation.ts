@@ -45,9 +45,7 @@ const resolvers = {
       { participantsIds }: { participantsIds: string[] },
       { session, prisma, pubsub }: GraphQLContext
     ): Promise<{ conversationId: string }> => {
-      if (!session.user) {
-        throw new GraphQLError("Not authorized.");
-      }
+      if (!session.user) throw new GraphQLError("Not authorized.");
 
       const {
         user: { id: userId },
@@ -83,6 +81,41 @@ const resolvers = {
         throw new GraphQLError("Error creating conversation");
       }
     },
+    markConversationAsRead: async (
+      _: any,
+      { conversationId }: { conversationId: string },
+      { session, prisma, pubsub }: GraphQLContext
+    ): Promise<boolean> => {
+      if (!session.user) throw new GraphQLError("Not authorized.");
+
+      const {user: {id: userId}} = session;
+
+
+      try {
+        const participant = await prisma.conversationParticipant.findFirst({
+          where: {
+            userId,
+            conversationId
+          }
+        })
+
+        if(!participant) throw new GraphQLError("Participant entity not found.")
+
+        await prisma.conversationParticipant.update({
+          where: {
+            id: participant.id,
+          },
+          data: {
+            hasSeenAllMessages: true,
+          }
+        })
+        
+        return true;
+      } catch (err) {
+        console.log("markConversationAsRead ERROR", err);
+        throw new GraphQLError("Error marking conversation as read");
+      }
+    }
   },
   Subscription: {
     conversationCreated: {
