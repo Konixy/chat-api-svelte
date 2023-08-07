@@ -1,4 +1,4 @@
-import { GraphQLContext, Message, SendMessageArguments } from "../../lib/types";
+import { ConversationPopulated, GraphQLContext, Message, SendMessageArguments } from "../../lib/types";
 import { userIsConversationParticipant } from "../../lib/util";
 import { Prisma } from "@prisma/client";
 import { GraphQLError } from "graphql";
@@ -94,6 +94,37 @@ const resolvers = {
       }
 
       try {
+        const conversation = await prisma.conversation.findUnique({
+          where: {
+            id: conversationId,
+          },
+          include: {
+            participants: {
+              select: {
+                id: true,
+                user: {
+                  select: {
+                    id: true
+                  }
+                }
+              }
+            }
+          }
+        })
+
+        if(!conversation) throw new GraphQLError("Invalid conversation id.")
+
+        // const participant = await prisma.conversationParticipant.findFirst({
+        //   where: {
+        //     userId: senderId,
+        //     conversationId,
+        //   },
+        // });
+
+        const participant = conversation.participants.find(p => p.user.id === userId);
+
+        if (!participant) throw new GraphQLError("Participant does not exist.");
+
         const newMessage = await prisma.message.create({
           data: {
             id: messageId,
@@ -104,16 +135,7 @@ const resolvers = {
           include: messagePopulated,
         });
 
-        const participant = await prisma.conversationParticipant.findFirst({
-          where: {
-            userId: senderId,
-            conversationId,
-          },
-        });
-
-        if (!participant) throw new GraphQLError("Participant does not exist.");
-
-        const conversation = await prisma.conversation.update({
+        await prisma.conversation.update({
           where: {
             id: conversationId,
           },
@@ -181,6 +203,7 @@ export const messagePopulated = Prisma.validator<Prisma.MessageInclude>()({
     select: {
       id: true,
       username: true,
+      image: true,
     },
   },
 });

@@ -65,6 +65,7 @@ export type Message = {
   sender: {
     id: string;
     username: string;
+    image?: string;
   };
 };
 
