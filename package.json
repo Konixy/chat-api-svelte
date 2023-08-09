@@ -5,9 +5,11 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "nodemon src/index.ts",
-    "prod-restart": "tsc && pm2 restart lyna-api --update-env",
+    "build": "npm run prisma && npx tsc",
+    "start": "node dist/index.js",
     "prisma": "prisma generate --schema=src/prisma/schema.prisma",
-    "lint": "eslint src/**/*.ts"
+    "lint": "eslint src/**/*.ts",
+    "prod-restart": "git pull && npm i && npm run build && pm2 restart lyna-api"
   },
   "repository": {
     "type": "git",
@@ -33,14 +35,14 @@
     "nodemon": "^3.0.1",
     "prettier": "^3.0.1",
     "prettier-plugin-prisma": "^5.0.0",
-    "prisma": "^5.1.1",
+    "prisma": "^4.0.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.6"
   },
   "dependencies": {
     "@apollo/server": "^4.9.1",
     "@graphql-tools/schema": "^10.0.0",
-    "@prisma/client": "^5.1.1",
+    "@prisma/client": "^4.0.0",
     "axios": "^1.4.0",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",

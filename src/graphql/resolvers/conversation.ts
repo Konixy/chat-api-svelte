@@ -10,7 +10,7 @@ const resolvers = {
       __: any,
       { session, prisma }: GraphQLContext
     ): Promise<ConversationPopulated[]> => {
-      if (!session.user) {
+      if (!session?.user) {
         throw new GraphQLError("Not authorized.");
       }
 
