@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 const typeDefs = gql`
   type Mutation {
@@ -29,7 +29,7 @@ const typeDefs = gql`
   }
 
   type Subscription {
-    conversationCreated: Conversation
+    conversationUpdated: Conversation
   }
 `;
 

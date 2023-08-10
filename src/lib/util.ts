@@ -1,8 +1,5 @@
-import { ParticipantPopulated } from "./types";
+import { ParticipantPopulated } from './types';
 
-export function userIsConversationParticipant(
-  participants: ParticipantPopulated[],
-  userId: string
-) {
-  return !!participants.find((p) => p.userId === userId);
+export function userIsConversationParticipant(participants: ParticipantPopulated[], userId: string) {
+  return !!participants.find((p) => p.user.id === userId);
 }
