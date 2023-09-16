@@ -5,3 +5,4 @@ pnpm-lock.yaml
 src/config.ts
 .env
 .env.local
+.DS_Store
