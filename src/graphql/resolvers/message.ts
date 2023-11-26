@@ -67,6 +67,9 @@ const resolvers = {
         throw new GraphQLError('Not authorized.');
       }
 
+      console.log('Recived sendMessage mutation...');
+      const date = Date.now();
+
       try {
         const conversation = await prisma.conversation.findUnique({
           where: {
@@ -149,6 +152,7 @@ const resolvers = {
         throw new GraphQLError('Error sending message');
       }
 
+      console.log(`Completed sendMessage mutation in ${Date.now() - date}ms`);
       return true;
     },
   },
