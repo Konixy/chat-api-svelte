@@ -91,7 +91,7 @@ async function main() {
   app.use(
     '/graphql',
     cors<cors.CorsRequest>({
-      origin: process.env.CLIENT_ORIGIN,
+      origin: '*', //process.env.CLIENT_ORIGIN,
       credentials: true,
     }),
     bodyParser.json(),
