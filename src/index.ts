@@ -1,22 +1,22 @@
-import { ApolloServer } from "@apollo/server";
-import { expressMiddleware } from "@apollo/server/express4";
-import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
-import { ApolloServerPluginLandingPageDisabled } from "@apollo/server/plugin/disabled";
-import { makeExecutableSchema } from "@graphql-tools/schema";
-import typeDefs from "./graphql/typeDefs";
-import resolvers from "./graphql/resolvers";
-import { config } from "dotenv";
-import Express, { Request, Response } from "express";
-import http from "http";
-import cors from "cors";
-import bodyParser from "body-parser";
-import axios from "axios";
-import type { GraphQLContext, Session, SubscriptionContext } from "./lib/types";
-import { PrismaClient } from "@prisma/client";
-import morgan from "morgan";
-import { WebSocketServer } from "ws";
-import { useServer } from "graphql-ws/lib/use/ws";
-import { PubSub } from "graphql-subscriptions";
+import { ApolloServer } from '@apollo/server';
+import { expressMiddleware } from '@apollo/server/express4';
+import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
+import { ApolloServerPluginLandingPageDisabled } from '@apollo/server/plugin/disabled';
+import { makeExecutableSchema } from '@graphql-tools/schema';
+import typeDefs from './graphql/typeDefs';
+import resolvers from './graphql/resolvers';
+import { config } from 'dotenv';
+import Express, { Request, Response } from 'express';
+import http from 'http';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import axios from 'axios';
+import type { GraphQLContext, Session, SubscriptionContext } from './lib/types';
+import { PrismaClient } from '@prisma/client';
+import morgan from 'morgan';
+import { WebSocketServer } from 'ws';
+import { useServer } from 'graphql-ws/lib/use/ws';
+import { PubSub } from 'graphql-subscriptions';
 
 const app = Express();
 
@@ -32,20 +32,12 @@ config();
 const prisma = new PrismaClient();
 const pubsub = new PubSub();
 
-async function context({
-  req,
-  res,
-}: {
-  req: Request;
-  res: Response;
-}): Promise<GraphQLContext> {
+async function context({ req, res }: { req: Request; res: Response }): Promise<GraphQLContext> {
   async function getSession(): Promise<Session | null> {
-    const { data } = await axios.get<Session>(
-      process.env.NEXTAUTH_URL + "/api/auth/session",
-      {
-        headers: { Cookie: req.headers.cookie },
-      }
-    );
+    console.log(req.headers.cookie);
+    const { data } = await axios.get<Session>(process.env.NEXTAUTH_URL + '/api/auth/session', {
+      headers: { Cookie: req.headers.cookie },
+    });
     return data;
   }
   return { session: await getSession(), prisma, pubsub };
@@ -59,7 +51,7 @@ async function main() {
 
   const wsServer = new WebSocketServer({
     server: httpServer,
-    path: "/graphql/ws",
+    path: '/graphql/ws',
   });
 
   const serverCleanup = useServer(
@@ -74,7 +66,7 @@ async function main() {
         return { session: null, prisma, pubsub };
       },
     },
-    wsServer
+    wsServer,
   );
 
   const server = new ApolloServer({
@@ -97,13 +89,13 @@ async function main() {
   await server.start();
 
   app.use(
-    "/graphql",
+    '/graphql',
     cors<cors.CorsRequest>({
       origin: process.env.CLIENT_ORIGIN,
       credentials: true,
     }),
     bodyParser.json(),
-    expressMiddleware(server, { context })
+    expressMiddleware(server, { context }),
   );
 
   httpServer.listen(process.env.PORT, undefined, () => {

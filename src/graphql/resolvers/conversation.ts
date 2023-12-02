@@ -93,7 +93,7 @@ const resolvers = {
           },
         });
 
-        console.log(participant)
+        console.log(participant);
 
         if (!participant) throw new GraphQLError('Participant entity not found.');
 

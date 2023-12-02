@@ -1,6 +1,6 @@
 /** @type {import("prettier").Options} */
 
-export default {
+module.exports = {
   plugins: ['prettier-plugin-prisma'],
   trailingComma: 'all',
   tabWidth: 2,
