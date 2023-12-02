@@ -1,11 +1,8 @@
-import type { Prisma, PrismaClient } from "@prisma/client";
-import {
-  conversationPopulated,
-  participantPopulated,
-} from "../graphql/resolvers/conversation";
-import { Context } from "graphql-ws/lib/server";
-import { PubSub } from "graphql-subscriptions";
-import { messagePopulated } from "@/graphql/resolvers/message";
+import type { Prisma, PrismaClient } from '@prisma/client';
+import { conversationPopulated, participantPopulated } from '../graphql/resolvers/conversation';
+import { Context } from 'graphql-ws/lib/server';
+import { PubSub } from 'graphql-subscriptions';
+import { messagePopulated } from '@/graphql/resolvers/message';
 
 export type Session = {
   user?: {
@@ -59,7 +56,7 @@ export type Message = {
   body: string;
   conversationId: string;
   senderId: string;
-  seenByIds: string[];
+  newForIds: string[];
   createdAt: Date;
   updatedAt: Date;
   sender: {

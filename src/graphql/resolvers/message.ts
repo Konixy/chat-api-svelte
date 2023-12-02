@@ -122,6 +122,7 @@ const resolvers = {
               update: {
                 where: {
                   id: participant.id,
+                  conversationId,
                 },
                 data: {
                   hasSeenAllMessages: true,
@@ -129,6 +130,7 @@ const resolvers = {
               },
               updateMany: {
                 where: {
+                  conversationId,
                   NOT: {
                     userId,
                   },

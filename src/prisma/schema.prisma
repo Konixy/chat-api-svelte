@@ -60,6 +60,7 @@ model VerificationToken {
 
 model Conversation {
   id              String                    @id @default(uuid()) @map("_id")
+  name            String?
   participants    ConversationParticipant[]
   messages        Message[]
   latestMessageId String?                   @unique
@@ -77,8 +78,8 @@ model ConversationParticipant {
   createdAt          DateTime     @default(now())
   updatedAt          DateTime     @updatedAt
   hasSeenAllMessages Boolean
-  seenMessagesIds    String[]
-  seenMessages       Message[]    @relation(name: "messageSeenBy", fields: [seenMessagesIds], references: [id])
+  newMessagesIds     String[]
+  newMessages        Message[]    @relation(name: "messageNewFor", fields: [newMessagesIds], references: [id])
 }
 
 model Message {
@@ -89,8 +90,8 @@ model Message {
   senderId       String
   sender         User                      @relation(fields: [senderId], references: [id])
   isLatestIn     Conversation?             @relation(name: "latestConversationMessage")
-  seenByIds      String[]
-  seenBy         ConversationParticipant[] @relation(name: "messageSeenBy", fields: [seenByIds], references: [id])
+  newForIds      String[]
+  newFor         ConversationParticipant[] @relation(name: "messageNewFor", fields: [newForIds], references: [id])
   createdAt      DateTime                  @default(now())
   updatedAt      DateTime                  @updatedAt
 }

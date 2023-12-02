@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag';
 
 const typeDefs = gql`
   type User {
@@ -13,6 +13,7 @@ const typeDefs = gql`
 
   type Query {
     searchUsers(query: String): [User]
+    getUsers: [User]
   }
 
   type Mutation {
