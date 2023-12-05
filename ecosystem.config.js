@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: "lyna-api",
+      name: "chat-api",
       script: "./dist/index.js",
     },
   ],
