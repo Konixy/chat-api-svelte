@@ -34,7 +34,6 @@ const pubsub = new PubSub();
 
 async function context({ req, res }: { req: Request; res: Response }): Promise<GraphQLContext> {
   async function getSession(): Promise<Session | null> {
-    console.log(req.headers.cookie);
     const { data } = await axios.get<Session>(process.env.NEXTAUTH_URL + '/api/auth/session', {
       headers: { Cookie: req.headers.cookie },
     });
