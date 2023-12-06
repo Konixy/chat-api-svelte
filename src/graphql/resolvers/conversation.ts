@@ -97,6 +97,8 @@ const resolvers = {
 
         if (!participant) throw new GraphQLError('Participant entity not found.');
 
+        if (participant.hasSeenAllMessages) return true;
+
         await prisma.conversationParticipant.update({
           where: {
             id: participant.id,

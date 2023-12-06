@@ -90,7 +90,7 @@ async function main() {
   app.use(
     '/graphql',
     cors<cors.CorsRequest>({
-      // origin: process.env.CLIENT_ORIGIN,
+      origin: process.env.CLIENT_ORIGIN,
       credentials: true,
       methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
       allowedHeaders: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, SameSite',
