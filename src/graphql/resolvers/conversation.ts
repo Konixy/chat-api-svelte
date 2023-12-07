@@ -93,8 +93,6 @@ const resolvers = {
           },
         });
 
-        console.log(participant);
-
         if (!participant) throw new GraphQLError('Participant entity not found.');
 
         if (participant.hasSeenAllMessages) return true;
