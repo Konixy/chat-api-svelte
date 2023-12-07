@@ -89,7 +89,7 @@ const resolvers = {
 
         return { success: true };
       } catch (err) {
-        console.log('CreateUsername ERROR:', err);
+        console.log('createUsername ERROR:', err);
         return { error: err.message };
       }
     },
