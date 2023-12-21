@@ -5,6 +5,8 @@ const typeDefs = gql`
     createConversation(participantsIds: [String]): CreateConversationResponse
     markConversationAsRead(conversationId: String!): Boolean
     deleteConversation(conversationId: String!): Boolean
+    leaveConversation(conversationId: String!): Boolean
+    addParticipants(conversationId: String!, userIds: [String]!): Boolean
   }
 
   type CreateConversationResponse {
@@ -13,6 +15,7 @@ const typeDefs = gql`
 
   type Conversation {
     id: ID
+    name: String
     latestMessage: Message
     participants: [Participant]
     createdAt: DateTime
@@ -33,9 +36,16 @@ const typeDefs = gql`
     id: String
   }
 
+  type ConversationParticipantDeletedSubscriptionPayload {
+    participantId: String
+    oldConversation: Conversation
+    newConversation: Conversation
+  }
+
   type Subscription {
     conversationUpdated: Conversation
     conversationDeleted: ConversationDeletedSubscriptionPayload
+    conversationParticipantDeleted: ConversationParticipantDeletedSubscriptionPayload
   }
 `;
 
