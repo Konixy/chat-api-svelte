@@ -51,6 +51,14 @@ const resolvers = {
       try {
         // if a conversation exists with the following participants, just return the conversation id of the existing conversation
 
+        if (participantsIds.length === 2) {
+          prisma.conversation.findFirst({
+            where: {
+              participants: {},
+            },
+          });
+        }
+
         const conversation = await prisma.conversation.create({
           data: {
             id: String(Date.now()),
