@@ -56,7 +56,6 @@ export type Message = {
   body: string;
   conversationId: string;
   senderId: string;
-  newForIds: string[];
   createdAt: Date;
   updatedAt: Date;
   sender: {
