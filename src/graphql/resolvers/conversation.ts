@@ -1,6 +1,6 @@
-import { GraphQLError, subscribe } from 'graphql';
+import { GraphQLError } from 'graphql';
 import { ConversationPopulated, GraphQLContext } from '../../lib/types';
-import { ConversationParticipant, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { withFilter } from 'graphql-subscriptions';
 import { userIsConversationParticipant } from '../../lib/util';
 
@@ -51,13 +51,10 @@ const resolvers = {
       try {
         // if a conversation exists with the following participants, just return the conversation id of the existing conversation
 
-        if (participantsIds.length === 2) {
-          prisma.conversation.findFirst({
-            where: {
-              participants: {},
-            },
-          });
-        }
+        // if (participantsIds.length === 2) {
+        //   const conversations = await prisma.conversation.findMany({include: conversationPopulated})
+        //   const existingConversations = conversations.filter(c => c.participants.map(p => p.id))
+        // }
 
         const conversation = await prisma.conversation.create({
           data: {
@@ -86,7 +83,7 @@ const resolvers = {
         throw new GraphQLError('Error creating conversation');
       }
     },
-    markConversationAsRead: async (_: any, { conversationId }: { conversationId: string }, { session, prisma, pubsub }: GraphQLContext): Promise<boolean> => {
+    markConversationAsRead: async (_: any, { conversationId }: { conversationId: string }, { session, prisma }: GraphQLContext): Promise<boolean> => {
       if (!session.user) throw new GraphQLError('Not authorized.');
 
       const {
@@ -237,10 +234,6 @@ const resolvers = {
       { session, prisma, pubsub }: GraphQLContext,
     ): Promise<boolean> => {
       if (!session.user) throw new GraphQLError('Not authorized.');
-
-      const {
-        user: { id: userId },
-      } = session;
 
       try {
         const conversation = await prisma.conversation.findUnique({
