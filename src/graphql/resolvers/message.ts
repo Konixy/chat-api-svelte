@@ -1,5 +1,5 @@
 import { ConversationPopulated, GraphQLContext, Message, SendMessageArguments } from '../../lib/types';
-import { userIsConversationParticipant } from '../../lib/util';
+import { userIsConversationParticipant } from '../../lib/utils';
 import { Prisma } from '@prisma/client';
 import { GraphQLError } from 'graphql';
 import { withFilter } from 'graphql-subscriptions';

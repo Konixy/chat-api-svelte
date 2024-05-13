@@ -2,7 +2,7 @@ import { GraphQLError } from 'graphql';
 import { ConversationPopulated, GraphQLContext } from '../../lib/types';
 import { Prisma } from '@prisma/client';
 import { withFilter } from 'graphql-subscriptions';
-import { userIsConversationParticipant } from '../../lib/util';
+import { userIsConversationParticipant } from '../../lib/utils';
 
 const resolvers = {
   Query: {
@@ -49,12 +49,27 @@ const resolvers = {
       } = session;
 
       try {
-        // if a conversation exists with the following participants, just return the conversation id of the existing conversation
+        if (participantsIds.length === 2) {
+          const conversations = await prisma.conversation.findMany({ include: conversationPopulated });
 
-        // if (participantsIds.length === 2) {
-        //   const conversations = await prisma.conversation.findMany({include: conversationPopulated})
-        //   const existingConversations = conversations.filter(c => c.participants.map(p => p.id))
-        // }
+          const map = conversations.map((c) => ({ participantsIds: c.participants.map((cc) => cc.user.id), id: c.id }));
+          const filter = map.filter(
+            (c) =>
+              c.participantsIds.length === 2 &&
+              c.participantsIds
+                .slice()
+                .sort()
+                .every((value, index) => value === participantsIds.slice().sort()[index]),
+          );
+
+          if (filter.length > 0) {
+            const convId = filter[0].id;
+
+            return {
+              conversationId: convId,
+            };
+          }
+        }
 
         const conversation = await prisma.conversation.create({
           data: {
