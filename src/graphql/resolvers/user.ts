@@ -4,6 +4,45 @@ import { GraphQLError } from 'graphql';
 
 const resolvers = {
   Query: {
+    getUsers: async (_: any, __: any, { session, prisma }: GraphQLContext): Promise<User[]> => {
+      if (!session.user) {
+        throw new GraphQLError('Not authorized.');
+      }
+
+      const { username: myUsername } = session.user;
+
+      try {
+        const users = await prisma.user.findMany({
+          where: {
+            username: {
+              not: myUsername,
+              mode: 'insensitive',
+            },
+          },
+        });
+
+        return users;
+      } catch (err: any) {
+        console.log('getUsers ERROR', err);
+        throw new GraphQLError(err.message);
+      }
+    },
+    getUser: async (_: any, { id }: { id: string }, { session, prisma }: GraphQLContext): Promise<User> => {
+      if (!session.user) {
+        throw new GraphQLError('Not authorized.');
+      }
+
+      try {
+        const user = prisma.user.findUnique({ where: { id } });
+
+        if (!user) throw new GraphQLError('This user does not exist.');
+
+        return user;
+      } catch (err: any) {
+        console.log('getUser ERROR', err);
+        throw new GraphQLError(err.message);
+      }
+    },
     searchUsers: async (_: any, { query }: { query: string }, { session, prisma }: GraphQLContext): Promise<User[]> => {
       if (!session.user) {
         throw new GraphQLError('Not authorized.');
@@ -25,29 +64,6 @@ const resolvers = {
         return users;
       } catch (err: any) {
         console.log('searchUsers ERROR', err);
-        throw new GraphQLError(err.message);
-      }
-    },
-    getUsers: async (_: any, __: any, { session, prisma }: GraphQLContext): Promise<User[]> => {
-      if (!session.user) {
-        throw new GraphQLError('Not authorized.');
-      }
-
-      const { username: myUsername } = session.user;
-
-      try {
-        const users = await prisma.user.findMany({
-          where: {
-            username: {
-              not: myUsername,
-              mode: 'insensitive',
-            },
-          },
-        });
-
-        return users;
-      } catch (err: any) {
-        console.log('getUsers ERROR', err);
         throw new GraphQLError(err.message);
       }
     },

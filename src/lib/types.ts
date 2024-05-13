@@ -2,13 +2,12 @@ import type { Prisma, PrismaClient } from '@prisma/client';
 import { conversationPopulated, participantPopulated } from '../graphql/resolvers/conversation';
 import { Context } from 'graphql-ws/lib/server';
 import { PubSub } from 'graphql-subscriptions';
-import { messagePopulated } from '@/graphql/resolvers/message';
 
 export type Session = {
   user?: {
     name?: string | null;
     email?: string | null;
-    emailVerified: boolean | null;
+    emailVerified?: boolean | null;
     image?: string | null;
     id?: string | null;
     username?: string | null;
