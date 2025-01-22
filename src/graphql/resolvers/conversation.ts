@@ -43,10 +43,14 @@ const resolvers = {
       { session, prisma, pubsub }: GraphQLContext,
     ): Promise<{ conversationId: string }> => {
       if (!session.user) throw new GraphQLError('Not authorized.');
+      if (participantsIds.length < 2) throw new GraphQLError('Too few participants');
+      if (!participantsIds.every((v, _, a) => a.indexOf(v) === a.lastIndexOf(v))) throw new GraphQLError('Duplicate participants');
 
       const {
         user: { id: userId },
       } = session;
+
+      if (participantsIds.filter((v) => v === userId).length !== 1) throw new GraphQLError("Cannot create conversation where you're not inside");
 
       try {
         if (participantsIds.length === 2) {
@@ -78,7 +82,7 @@ const resolvers = {
               createMany: {
                 data: participantsIds.map((id) => ({
                   userId: id,
-                  hasSeenAllMessages: id === userId,
+                  latestSeenMessageId: null,
                 })),
               },
             },
@@ -115,14 +119,16 @@ const resolvers = {
 
         if (!participant) throw new GraphQLError('Participant entity not found.');
 
-        if (participant.hasSeenAllMessages) return true;
+        const latestMessage = await prisma.message.findFirst({ orderBy: { createdAt: 'desc' } });
+
+        if (participant.latestSeenMessageId === latestMessage.id) return true;
 
         await prisma.conversationParticipant.update({
           where: {
             id: participant.id,
           },
           data: {
-            hasSeenAllMessages: true,
+            latestSeenMessageId: latestMessage.id,
           },
         });
 
@@ -347,6 +353,7 @@ export const userPopulated = {
 };
 
 export const participantPopulated = Prisma.validator<Prisma.ConversationParticipantInclude>()({
+  latestSeenMessage: true,
   user: {
     select: userPopulated,
   },

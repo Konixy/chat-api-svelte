@@ -1,5 +1,5 @@
 import { User } from '@prisma/client';
-import type { GraphQLContext, CreateUsernameResponse } from '../../lib/types';
+import type { GraphQLContext } from '../../lib/types';
 import { GraphQLError } from 'graphql';
 
 const resolvers = {
@@ -21,7 +21,7 @@ const resolvers = {
           },
         });
 
-        return users;
+        return users.filter((u) => u.username);
       } catch (err: any) {
         console.log('getUsers ERROR', err);
         throw new GraphQLError(err.message);
@@ -69,15 +69,11 @@ const resolvers = {
     },
   },
   Mutation: {
-    createUsername: async (_: any, { username }: { username: string }, { session, prisma }: GraphQLContext): Promise<CreateUsernameResponse> => {
+    createUsername: async (_: any, { username }: { username: string }, { session, prisma }: GraphQLContext): Promise<boolean> => {
       if (!session.user) {
-        return {
-          error: 'User must be logged in',
-        };
+        throw new GraphQLError('Not authorized');
       } else if (!username.match(/^(?=.{4,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/)) {
-        return {
-          error: "Username don't match the regex.",
-        };
+        throw new GraphQLError("Username donesn't match the regex");
       }
 
       const { id: userId } = session.user;
@@ -89,10 +85,7 @@ const resolvers = {
           },
         });
 
-        if (existingUser)
-          return {
-            error: 'Username is taken. Try another ',
-          };
+        if (existingUser) throw new GraphQLError('Username is allready taken');
 
         await prisma.user.update({
           where: {
@@ -103,10 +96,10 @@ const resolvers = {
           },
         });
 
-        return { success: true };
+        return true;
       } catch (err) {
-        console.log('createUsername ERROR:', err);
-        return { error: err.message };
+        // console.log('createUsername ERROR:', err);
+        throw new GraphQLError(err);
       }
     },
   },

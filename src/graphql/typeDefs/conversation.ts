@@ -9,6 +9,10 @@ const typeDefs = gql`
     addParticipants(conversationId: String!, userIds: [String]!): Boolean
   }
 
+  type Query {
+    conversations: [Conversation]
+  }
+
   type CreateConversationResponse {
     conversationId: ID
   }
@@ -25,11 +29,7 @@ const typeDefs = gql`
   type Participant {
     id: ID
     user: User
-    hasSeenAllMessages: Boolean
-  }
-
-  type Query {
-    conversations: [Conversation]
+    lastSeenMessageId: ID
   }
 
   type ConversationDeletedSubscriptionPayload {

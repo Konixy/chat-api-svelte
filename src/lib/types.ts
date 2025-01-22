@@ -28,15 +28,6 @@ export type SubscriptionContext = Context & {
 };
 
 /**
- * Users
- */
-
-export type CreateUsernameResponse = {
-  success?: boolean;
-  error?: string;
-};
-
-/**
  * Conversations
  */
 export type ConversationPopulated = Prisma.ConversationGetPayload<{

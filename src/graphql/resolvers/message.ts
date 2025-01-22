@@ -122,18 +122,7 @@ const resolvers = {
                   conversationId,
                 },
                 data: {
-                  hasSeenAllMessages: true,
-                },
-              },
-              updateMany: {
-                where: {
-                  conversationId,
-                  NOT: {
-                    userId,
-                  },
-                },
-                data: {
-                  hasSeenAllMessages: false,
+                  latestSeenMessageId: messageId,
                 },
               },
             },

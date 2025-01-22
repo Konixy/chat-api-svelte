@@ -7,6 +7,7 @@ const typeDefs = gql`
     name: String
     image: String
     createdAt: DateTime
+    updatedAt: DateTime
     email: String
     emailVerified: Boolean
   }
@@ -18,7 +19,7 @@ const typeDefs = gql`
   }
 
   type Mutation {
-    createUsername(username: String): CreateUsernameResponse
+    createUsername(username: String): Boolean
   }
 
   type CreateUsernameResponse {
