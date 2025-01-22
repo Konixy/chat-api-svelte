@@ -1,4 +1,4 @@
-# Chat app backend
+# chat-svelte backend
 
 technology used : GraphQL, Express, Prisma, MongoDB
 
