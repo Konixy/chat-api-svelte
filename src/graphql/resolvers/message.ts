@@ -7,7 +7,7 @@ import { conversationPopulated, userPopulated } from './conversation';
 
 const resolvers = {
   Query: {
-    messages: async function (_: any, { conversationId }: { conversationId: string }, { session, prisma }: GraphQLContext): Promise<Message[]> {
+    messages: async function (_: any, { conversationId }: { conversationId: string }, { session, prisma, pubsub }: GraphQLContext): Promise<Message[]> {
       if (!session?.user) {
         throw new GraphQLError('Not authorized.');
       }
@@ -42,6 +42,32 @@ const resolvers = {
           },
         });
 
+        if (messages.length > 0) {
+          const p = conversation.participants.find((p) => p.user.id === userId);
+          if (p.lastSeenMessageId !== messages[0].id) {
+            await prisma.conversationParticipant.update({
+              where: {
+                id: p.id,
+              },
+              data: {
+                lastSeenMessageId: messages[0].id,
+                unreadMessages: 0,
+              },
+            });
+
+            const newConversation = await prisma.conversation.findUnique({
+              where: {
+                id: conversation.id,
+              },
+              include: conversationPopulated,
+            });
+
+            pubsub.publish('CONVERSATION_UPDATED', {
+              conversationUpdated: newConversation,
+            });
+          }
+        }
+
         return messages;
       } catch (err) {
         console.log('messages ERROR', err);
@@ -55,9 +81,8 @@ const resolvers = {
       { id: messageId, senderId, conversationId, body }: SendMessageArguments,
       { session, prisma, pubsub }: GraphQLContext,
     ): Promise<boolean> {
-      if (!session?.user) {
-        throw new GraphQLError('Not authorized.');
-      }
+      if (!session?.user) throw new GraphQLError('Not authorized.');
+      if (body === '') throw new GraphQLError('Empty body');
 
       const {
         user: { id: userId },
@@ -122,7 +147,21 @@ const resolvers = {
                   conversationId,
                 },
                 data: {
-                  latestSeenMessageId: messageId,
+                  lastSeenMessageId: messageId,
+                  unreadMessages: 0,
+                },
+              },
+              updateMany: {
+                where: {
+                  id: {
+                    not: participant.id,
+                  },
+                  conversationId,
+                },
+                data: {
+                  unreadMessages: {
+                    increment: 1,
+                  },
                 },
               },
             },

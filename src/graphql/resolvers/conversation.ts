@@ -102,7 +102,7 @@ const resolvers = {
         throw new GraphQLError('Error creating conversation');
       }
     },
-    markConversationAsRead: async (_: any, { conversationId }: { conversationId: string }, { session, prisma }: GraphQLContext): Promise<boolean> => {
+    markConversationAsRead: async (_: any, { conversationId }: { conversationId: string }, { session, prisma, pubsub }: GraphQLContext): Promise<boolean> => {
       if (!session.user) throw new GraphQLError('Not authorized.');
 
       const {
@@ -121,15 +121,20 @@ const resolvers = {
 
         const latestMessage = await prisma.message.findFirst({ orderBy: { createdAt: 'desc' } });
 
-        if (participant.latestSeenMessageId === latestMessage.id) return true;
+        if (participant.lastSeenMessageId === latestMessage.id) return true;
 
         await prisma.conversationParticipant.update({
           where: {
             id: participant.id,
           },
           data: {
-            latestSeenMessageId: latestMessage.id,
+            lastSeenMessageId: latestMessage.id,
+            unreadMessages: 0,
           },
+        });
+
+        pubsub.publish('CONVERSATION_UPDATED', {
+          conversationUpdated: await prisma.conversation.findUnique({ where: { id: conversationId }, include: conversationPopulated }),
         });
 
         return true;
@@ -353,7 +358,6 @@ export const userPopulated = {
 };
 
 export const participantPopulated = Prisma.validator<Prisma.ConversationParticipantInclude>()({
-  latestSeenMessage: true,
   user: {
     select: userPopulated,
   },

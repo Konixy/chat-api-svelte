@@ -79,18 +79,23 @@ model Conversation {
   latestMessage   Message?                  @relation(name: "latestConversationMessage", fields: [latestMessageId], references: [id], onUpdate: NoAction, onDelete: NoAction)
   createdAt       DateTime                  @default(now())
   updatedAt       DateTime                  @updatedAt
+
+  @@map("conversation")
 }
 
 model ConversationParticipant {
-  id                  String       @id @default(uuid()) @map("_id")
-  userId              String
-  user                User         @relation(fields: [userId], references: [id])
-  conversationId      String
-  conversation        Conversation @relation(fields: [conversationId], references: [id])
-  createdAt           DateTime     @default(now())
-  updatedAt           DateTime     @updatedAt
-  latestSeenMessageId String?
-  latestSeenMessage   Message?     @relation(fields: [latestSeenMessageId], references: [id])
+  id                String       @id @default(uuid()) @map("_id")
+  userId            String
+  user              User         @relation(fields: [userId], references: [id])
+  conversationId    String
+  conversation      Conversation @relation(fields: [conversationId], references: [id])
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  lastSeenMessageId String?
+  lastSeenMessage   Message?     @relation(fields: [lastSeenMessageId], references: [id])
+  unreadMessages    Int?
+
+  @@map("conversationParticipant")
 }
 
 model Message {
@@ -104,4 +109,6 @@ model Message {
   createdAt      DateTime                  @default(now())
   updatedAt      DateTime                  @updatedAt
   lastSeenBy     ConversationParticipant[]
+
+  @@map("message")
 }

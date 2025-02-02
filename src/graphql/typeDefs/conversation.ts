@@ -1,6 +1,10 @@
 import gql from 'graphql-tag';
 
 const typeDefs = gql`
+  type Query {
+    conversations: [Conversation]
+  }
+
   type Mutation {
     createConversation(participantsIds: [String]): CreateConversationResponse
     markConversationAsRead(conversationId: String!): Boolean
@@ -9,8 +13,10 @@ const typeDefs = gql`
     addParticipants(conversationId: String!, userIds: [String]!): Boolean
   }
 
-  type Query {
-    conversations: [Conversation]
+  type Subscription {
+    conversationUpdated: Conversation
+    conversationDeleted: ConversationDeletedSubscriptionPayload
+    conversationParticipantDeleted: ConversationParticipantDeletedSubscriptionPayload
   }
 
   type CreateConversationResponse {
@@ -30,6 +36,7 @@ const typeDefs = gql`
     id: ID
     user: User
     lastSeenMessageId: ID
+    unreadMessages: Int
   }
 
   type ConversationDeletedSubscriptionPayload {
@@ -40,12 +47,6 @@ const typeDefs = gql`
     participantId: String
     oldConversation: Conversation
     newConversation: Conversation
-  }
-
-  type Subscription {
-    conversationUpdated: Conversation
-    conversationDeleted: ConversationDeletedSubscriptionPayload
-    conversationParticipantDeleted: ConversationParticipantDeletedSubscriptionPayload
   }
 `;
 
