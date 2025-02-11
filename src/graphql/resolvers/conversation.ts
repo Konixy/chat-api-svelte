@@ -82,7 +82,7 @@ const resolvers = {
               createMany: {
                 data: participantsIds.map((id) => ({
                   userId: id,
-                  latestSeenMessageId: null,
+                  lastSeenMessageId: null,
                 })),
               },
             },
