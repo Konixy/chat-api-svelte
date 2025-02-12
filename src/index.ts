@@ -102,7 +102,7 @@ async function main() {
   );
 
   httpServer.listen(process.env.PORT, undefined, () => {
-    console.log(`🚀  Server ready at: ${process.env.URL}:${process.env.PORT}`);
+    console.log(`🚀  Server ready at: ${process.env.URL}${process.env.URL.startsWith('https') ? '' : ':' + process.env.PORT}`);
   });
 }
 
