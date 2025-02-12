@@ -5,7 +5,6 @@ import { ApolloServerPluginLandingPageDisabled } from '@apollo/server/plugin/dis
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import typeDefs from './graphql/typeDefs';
 import resolvers from './graphql/resolvers';
-import { config } from 'dotenv';
 import Express, { Request, Response } from 'express';
 import http from 'http';
 import cors from 'cors';
@@ -17,12 +16,12 @@ import morgan from 'morgan';
 import { WebSocketServer } from 'ws';
 import { useServer } from 'graphql-ws/lib/use/ws';
 import { PubSub } from 'graphql-subscriptions';
+import { config } from 'dotenv';
+config();
 
 const app = Express();
 
 const httpServer = http.createServer(app);
-
-config();
 
 /**
  * Logging
@@ -34,11 +33,13 @@ const pubsub = new PubSub();
 
 async function context({ req, res }: { req: Request; res: Response }): Promise<GraphQLContext> {
   async function getSession(): Promise<Session | null> {
-    const { data } = await axios.get<Session>(process.env.CLIENT_ORIGIN + '/api/auth/session', {
+    const response = await axios.get<Session | null>(process.env.CLIENT_ORIGIN + '/api/auth/session', {
       headers: { Cookie: req.headers.cookie },
     });
 
-    return data;
+    console.log(response);
+
+    return response.data;
   }
   return { session: await getSession(), prisma, pubsub };
 }
