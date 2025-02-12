@@ -37,8 +37,6 @@ async function context({ req, res }: { req: Request; res: Response }): Promise<G
       headers: { Cookie: req.headers.cookie },
     });
 
-    console.log(req.path, 'cookies:', req.headers.cookie);
-
     return data;
   }
   return { session: await getSession(), prisma, pubsub };
