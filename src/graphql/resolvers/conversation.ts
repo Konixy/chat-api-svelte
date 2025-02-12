@@ -42,7 +42,7 @@ const resolvers = {
       { participantsIds }: { participantsIds: string[] },
       { session, prisma, pubsub }: GraphQLContext,
     ): Promise<{ conversationId: string }> => {
-      if (!session.user) throw new GraphQLError('Not authorized.');
+      if (!session?.user) throw new GraphQLError('Not authorized.');
       if (participantsIds.length < 2) throw new GraphQLError('Too few participants');
       if (!participantsIds.every((v, _, a) => a.indexOf(v) === a.lastIndexOf(v))) throw new GraphQLError('Duplicate participants');
 
@@ -103,7 +103,7 @@ const resolvers = {
       }
     },
     markConversationAsRead: async (_: any, { conversationId }: { conversationId: string }, { session, prisma, pubsub }: GraphQLContext): Promise<boolean> => {
-      if (!session.user) throw new GraphQLError('Not authorized.');
+      if (!session?.user) throw new GraphQLError('Not authorized.');
 
       const {
         user: { id: userId },
@@ -144,7 +144,7 @@ const resolvers = {
       }
     },
     deleteConversation: async (_: any, { conversationId }: { conversationId: string }, { session, prisma, pubsub }: GraphQLContext): Promise<boolean> => {
-      if (!session.user) throw new GraphQLError('Not authorized.');
+      if (!session?.user) throw new GraphQLError('Not authorized.');
 
       try {
         const conversation = await prisma.conversation.findUnique({
@@ -196,7 +196,7 @@ const resolvers = {
       }
     },
     leaveConversation: async (_: any, { conversationId }: { conversationId: string }, { session, prisma, pubsub }: GraphQLContext): Promise<boolean> => {
-      if (!session.user) throw new GraphQLError('Not authorized.');
+      if (!session?.user) throw new GraphQLError('Not authorized.');
 
       const {
         user: { id: userId },
@@ -259,7 +259,7 @@ const resolvers = {
       { conversationId, userIds }: { conversationId: string; userIds: string[] },
       { session, prisma, pubsub }: GraphQLContext,
     ): Promise<boolean> => {
-      if (!session.user) throw new GraphQLError('Not authorized.');
+      if (!session?.user) throw new GraphQLError('Not authorized.');
 
       try {
         const conversation = await prisma.conversation.findUnique({
@@ -312,7 +312,7 @@ const resolvers = {
       subscribe: withFilter(
         (_, __, { pubsub }: GraphQLContext) => pubsub.asyncIterator('CONVERSATION_UPDATED'),
         ({ conversationUpdated: { participants } }: { conversationUpdated: ConversationPopulated }, _, { session }: GraphQLContext) => {
-          if (!session.user) throw new GraphQLError('Not Authorized.');
+          if (!session?.user) throw new GraphQLError('Not Authorized.');
 
           return userIsConversationParticipant(participants, session.user.id);
         },
@@ -322,7 +322,7 @@ const resolvers = {
       subscribe: withFilter(
         (_, __, { pubsub }: GraphQLContext) => pubsub.asyncIterator('CONVERSATION_DELETED'),
         ({ conversationDeleted }: { conversationDeleted: ConversationPopulated }, _, { session }: GraphQLContext) => {
-          if (!session.user) throw new GraphQLError('Not Authorized.');
+          if (!session?.user) throw new GraphQLError('Not Authorized.');
           return userIsConversationParticipant(conversationDeleted.participants, session.user.id);
         },
       ),
@@ -337,7 +337,7 @@ const resolvers = {
           _,
           { session }: GraphQLContext,
         ) => {
-          if (!session.user) throw new GraphQLError('Not Authorized.');
+          if (!session?.user) throw new GraphQLError('Not Authorized.');
 
           return userIsConversationParticipant(conversationParticipantDeleted.oldConversation.participants, session.user.id);
         },

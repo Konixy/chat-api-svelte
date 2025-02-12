@@ -5,9 +5,7 @@ import { GraphQLError } from 'graphql';
 const resolvers = {
   Query: {
     getUsers: async (_: any, __: any, { session, prisma }: GraphQLContext): Promise<User[]> => {
-      if (!session.user) {
-        throw new GraphQLError('Not authorized.');
-      }
+      if (!session?.user) throw new GraphQLError('Not authorized.');
 
       const { username: myUsername } = session.user;
 
@@ -28,9 +26,7 @@ const resolvers = {
       }
     },
     getUser: async (_: any, { id }: { id: string }, { session, prisma }: GraphQLContext): Promise<User> => {
-      if (!session.user) {
-        throw new GraphQLError('Not authorized.');
-      }
+      if (!session?.user) throw new GraphQLError('Not authorized.');
 
       try {
         const user = prisma.user.findUnique({ where: { id } });
@@ -44,9 +40,7 @@ const resolvers = {
       }
     },
     searchUsers: async (_: any, { query }: { query: string }, { session, prisma }: GraphQLContext): Promise<User[]> => {
-      if (!session.user) {
-        throw new GraphQLError('Not authorized.');
-      }
+      if (!session?.user) throw new GraphQLError('Not authorized.');
 
       const { username: myUsername } = session.user;
 
@@ -70,11 +64,11 @@ const resolvers = {
   },
   Mutation: {
     createUsername: async (_: any, { username }: { username: string }, { session, prisma }: GraphQLContext): Promise<boolean> => {
-      if (!session.user) {
-        throw new GraphQLError('Not authorized');
-      } else if (!username.match(/^(?=.{4,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/)) {
-        throw new GraphQLError("Username donesn't match the regex");
-      }
+      if (!session?.user) throw new GraphQLError('Not authorized');
+
+      const regex = /^(?=.{4,20}$)(?![_.])(?!.*[_.]{2})[a-zA-Z0-9._]+(?<![_.])$/;
+
+      if (!username.match(regex)) throw new GraphQLError("Username donesn't match the regex");
 
       const { id: userId } = session.user;
 
