@@ -33,14 +33,13 @@ const pubsub = new PubSub();
 
 async function context({ req, res }: { req: Request; res: Response }): Promise<GraphQLContext> {
   async function getSession(): Promise<Session | null> {
-    const response = await axios.get<Session | null>(process.env.CLIENT_ORIGIN + '/api/auth/session', {
+    const { data } = await axios.get<Session | null>(process.env.CLIENT_ORIGIN + '/api/auth/session', {
       headers: { Cookie: req.headers.cookie },
     });
 
-    console.log('request headers', req.headers);
-    console.log('response config', response.config);
+    console.log(req.path, 'cookies:', req.headers.cookie);
 
-    return response.data;
+    return data;
   }
   return { session: await getSession(), prisma, pubsub };
 }
