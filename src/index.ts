@@ -37,7 +37,8 @@ async function context({ req, res }: { req: Request; res: Response }): Promise<G
       headers: { Cookie: req.headers.cookie },
     });
 
-    console.log(response);
+    console.log('request headers' + req.headers);
+    console.log('response config' + response.config);
 
     return response.data;
   }
