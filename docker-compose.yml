@@ -1,0 +1,25 @@
+services:
+  chat-api-svelte:
+    container_name: chat-api-svelte
+    # The name of the image that will be created when building this container
+    image: chat-api-svelte:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    user: 'node'
+    environment:
+      # Internal server error messages will not send stacktrace to the browser in production
+      - NODE_ENV=production
+      # Sets the timezone of the containers OS
+      - TZ=Europe/Paris
+    # Points to a file with the sensitive environment variables
+    env_file:
+      - .env
+    restart: unless-stopped
+    ports:
+      - 87:87
+    extra_hosts:
+      - 'mongoservice:172.17.0.1'
+    labels:
+      # Stops watchtower from updating this container
+      - 'com.centurylinklabs.watchtower.enable=false'
