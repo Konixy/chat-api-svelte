@@ -42,30 +42,28 @@ const resolvers = {
           },
         });
 
-        if (messages.length > 0) {
-          const p = conversation.participants.find((p) => p.user.id === userId);
-          if (p.lastSeenMessageId !== messages[0].id) {
-            await prisma.conversationParticipant.update({
-              where: {
-                id: p.id,
-              },
-              data: {
-                lastSeenMessageId: messages[0].id,
-                unreadMessages: 0,
-              },
-            });
+        const p = conversation.participants.find((p) => p.user.id === userId);
+        if ((messages.length === 0 && !p.lastSeenMessageId) || (messages.length > 0 && p.lastSeenMessageId !== messages[0].id)) {
+          await prisma.conversationParticipant.update({
+            where: {
+              id: p.id,
+            },
+            data: {
+              lastSeenMessageId: messages.length > 0 ? messages[0].id : null,
+              unreadMessages: 0,
+            },
+          });
 
-            const newConversation = await prisma.conversation.findUnique({
-              where: {
-                id: conversation.id,
-              },
-              include: conversationPopulated,
-            });
+          const newConversation = await prisma.conversation.findUnique({
+            where: {
+              id: conversation.id,
+            },
+            include: conversationPopulated,
+          });
 
-            pubsub.publish('CONVERSATION_UPDATED', {
-              conversationUpdated: newConversation,
-            });
-          }
+          pubsub.publish('CONVERSATION_UPDATED', {
+            conversationUpdated: newConversation,
+          });
         }
 
         return messages;

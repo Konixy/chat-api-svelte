@@ -83,6 +83,7 @@ const resolvers = {
                 data: participantsIds.map((id) => ({
                   userId: id,
                   lastSeenMessageId: null,
+                  unreadMessages: 1,
                 })),
               },
             },
