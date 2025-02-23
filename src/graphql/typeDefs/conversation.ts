@@ -14,9 +14,9 @@ const typeDefs = gql`
   }
 
   type Subscription {
-    conversationUpdated: Conversation
-    conversationDeleted: ConversationDeletedSubscriptionPayload
-    conversationParticipantDeleted: ConversationParticipantDeletedSubscriptionPayload
+    conversationUpdated: ConversationUpdatedSubscriptionPayload
+    # conversationDeleted: ConversationDeletedSubscriptionPayload
+    # conversationParticipantDeleted: ConversationParticipantDeletedSubscriptionPayload
   }
 
   type CreateConversationResponse {
@@ -39,15 +39,20 @@ const typeDefs = gql`
     unreadMessages: Int
   }
 
-  type ConversationDeletedSubscriptionPayload {
-    id: String
-  }
-
-  type ConversationParticipantDeletedSubscriptionPayload {
-    participantId: String
+  type ConversationUpdatedSubscriptionPayload {
     oldConversation: Conversation
     newConversation: Conversation
   }
+
+  # type ConversationDeletedSubscriptionPayload {
+  #   id: String
+  # }
+
+  # type ConversationParticipantDeletedSubscriptionPayload {
+  #   participantId: String
+  #   oldConversation: Conversation
+  #   newConversation: Conversation
+  # }
 `;
 
 export default typeDefs;

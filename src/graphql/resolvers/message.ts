@@ -62,7 +62,7 @@ const resolvers = {
           });
 
           pubsub.publish('CONVERSATION_UPDATED', {
-            conversationUpdated: newConversation,
+            conversationUpdated: { newConversation },
           });
         }
 
@@ -170,7 +170,7 @@ const resolvers = {
         pubsub.publish('NEW_MESSAGE', { newMessage, conversation: newConversation });
 
         pubsub.publish('CONVERSATION_UPDATED', {
-          conversationUpdated: newConversation,
+          conversationUpdated: { newConversation },
         });
       } catch (err) {
         console.log('sendMessage ERROR', err);

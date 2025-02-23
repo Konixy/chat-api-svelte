@@ -92,7 +92,9 @@ const resolvers = {
         });
 
         pubsub.publish('CONVERSATION_UPDATED', {
-          conversationUpdated: conversation,
+          conversationUpdated: {
+            newConversation: conversation,
+          },
         });
 
         return {
@@ -135,7 +137,9 @@ const resolvers = {
         });
 
         pubsub.publish('CONVERSATION_UPDATED', {
-          conversationUpdated: await prisma.conversation.findUnique({ where: { id: conversationId }, include: conversationPopulated }),
+          conversationUpdated: {
+            newConversation: await prisma.conversation.findUnique({ where: { id: conversationId }, include: conversationPopulated }),
+          },
         });
 
         return true;
@@ -156,7 +160,7 @@ const resolvers = {
         });
 
         if (!conversation) throw new GraphQLError('Conversation not found.');
-        if (conversation.participants.length > 2) throw new GraphQLError('Cannot delete a conversation with more than 2 members.');
+        if (conversation.participants.length > 3) throw new GraphQLError("Cannot delete a conversation if it's a group with more than 3 members.");
 
         await prisma.$transaction([
           prisma.conversationParticipant.deleteMany({
@@ -186,8 +190,8 @@ const resolvers = {
           }),
         ]);
 
-        pubsub.publish('CONVERSATION_DELETED', {
-          conversationDeleted: conversation,
+        pubsub.publish('CONVERSATION_UPDATED', {
+          conversationUpdated: { oldConversation: conversation },
         });
 
         return true;
@@ -213,7 +217,8 @@ const resolvers = {
         const participant = conversation.participants.find((p) => p.userId === userId);
 
         if (!conversation) throw new GraphQLError('Conversation not found.');
-        if (conversation.participants.length < 3) throw new GraphQLError('Cannot leave a conversation with less than 3 members.');
+        if (!conversation.participants.find((p) => p.user.id === userId)) throw new GraphQLError('Cannot leave a conversation you are not member of.');
+        if (conversation.participants.length < 4) throw new GraphQLError("Cannot leave a conversation if it' not a group of 4 person in minimum.");
 
         const newConversation = await prisma.conversation
           .update({
@@ -234,16 +239,8 @@ const resolvers = {
             throw new GraphQLError(err);
           });
 
-        // conversation = await prisma.conversation.findUnique({
-        //   where: {
-        //     id: conversationId,
-        //   },
-        //   include: conversationPopulated,
-        // });
-
-        pubsub.publish('CONVERSATION_PARTICIPANT_DELETED', {
-          conversationParticipantDeleted: {
-            participantId: participant.id,
+        pubsub.publish('CONVERSATION_UPDATED', {
+          conversationUpdated: {
             oldConversation: conversation,
             newConversation,
           },
@@ -299,7 +296,10 @@ const resolvers = {
         });
 
         pubsub.publish('CONVERSATION_UPDATED', {
-          conversationUpdated: newConversation,
+          conversationUpdated: {
+            oldConversation: conversation,
+            newConversation,
+          },
         });
 
         return true;
@@ -312,38 +312,44 @@ const resolvers = {
     conversationUpdated: {
       subscribe: withFilter(
         (_, __, { pubsub }: GraphQLContext) => pubsub.asyncIterator('CONVERSATION_UPDATED'),
-        ({ conversationUpdated: { participants } }: { conversationUpdated: ConversationPopulated }, _, { session }: GraphQLContext) => {
-          if (!session?.user) throw new GraphQLError('Not Authorized.');
-
-          return userIsConversationParticipant(participants, session.user.id);
-        },
-      ),
-    },
-    conversationDeleted: {
-      subscribe: withFilter(
-        (_, __, { pubsub }: GraphQLContext) => pubsub.asyncIterator('CONVERSATION_DELETED'),
-        ({ conversationDeleted }: { conversationDeleted: ConversationPopulated }, _, { session }: GraphQLContext) => {
-          if (!session?.user) throw new GraphQLError('Not Authorized.');
-          return userIsConversationParticipant(conversationDeleted.participants, session.user.id);
-        },
-      ),
-    },
-    conversationParticipantDeleted: {
-      subscribe: withFilter(
-        (_, __, { pubsub }: GraphQLContext) => pubsub.asyncIterator('CONVERSATION_PARTICIPANT_DELETED'),
         (
           {
-            conversationParticipantDeleted,
-          }: { conversationParticipantDeleted: { participantId: string; oldConversation: ConversationPopulated; newConversation: ConversationPopulated } },
+            conversationUpdated: { oldConversation, newConversation },
+          }: { conversationUpdated: { oldConversation?: ConversationPopulated; newConversation?: ConversationPopulated } },
           _,
           { session }: GraphQLContext,
         ) => {
           if (!session?.user) throw new GraphQLError('Not Authorized.');
 
-          return userIsConversationParticipant(conversationParticipantDeleted.oldConversation.participants, session.user.id);
+          return userIsConversationParticipant(oldConversation ? oldConversation.participants : newConversation.participants, session.user.id);
         },
       ),
     },
+    // conversationDeleted: {
+    //   subscribe: withFilter(
+    //     (_, __, { pubsub }: GraphQLContext) => pubsub.asyncIterator('CONVERSATION_DELETED'),
+    //     ({ conversationDeleted }: { conversationDeleted: ConversationPopulated }, _, { session }: GraphQLContext) => {
+    //       if (!session?.user) throw new GraphQLError('Not Authorized.');
+    //       return userIsConversationParticipant(conversationDeleted.participants, session.user.id);
+    //     },
+    //   ),
+    // },
+    // conversationParticipantDeleted: {
+    //   subscribe: withFilter(
+    //     (_, __, { pubsub }: GraphQLContext) => pubsub.asyncIterator('CONVERSATION_PARTICIPANT_DELETED'),
+    //     (
+    //       {
+    //         conversationParticipantDeleted,
+    //       }: { conversationParticipantDeleted: { participantId: string; oldConversation: ConversationPopulated; newConversation: ConversationPopulated } },
+    //       _,
+    //       { session }: GraphQLContext,
+    //     ) => {
+    //       if (!session?.user) throw new GraphQLError('Not Authorized.');
+
+    //       return userIsConversationParticipant(conversationParticipantDeleted.oldConversation.participants, session.user.id);
+    //     },
+    //   ),
+    // },
   },
 };
 
